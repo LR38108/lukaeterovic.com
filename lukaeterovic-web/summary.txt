@@ -1,0 +1,86 @@
+🧾 LUKA ETEROVIĆ WEB PROJECT SUMMARY (VUE 3 + TAILWIND)
+
+📁 PAGES & ROUTING
+
+/ → HomePage.vue
+
+/film → FilmPage.vue — lists all films from films.js
+
+/film/:slug → FilmDetailPage.vue — detailed view for a selected film
+
+Routing set in router/index.js
+
+🎬 COMPONENTS
+HeaderNav.vue
+
+Fixed top nav with MENU and logo
+
+Adapts to theme:
+
+Home: always white text
+
+Other pages: black/white based on theme
+
+Logo links to /
+
+Opens FullMenu.vue modal
+
+FilmCard.vue
+
+Shows poster, title, metadata (year, duration, type, genres), tagline, description, and buttons
+
+Uses <router-link> to detail page using slug
+
+Responsive layout
+
+Buttons adapt color based on theme
+
+FilmDetailPage.vue
+
+Uses slug from route param to fetch data
+
+Displays:
+
+Poster
+
+Title, original title, runtime, language, genre
+
+Plot Summary and About the Project
+
+Credits list
+
+Gallery stills
+
+Watch link (Vimeo)
+
+📂 DATA FILE: src/data/films.js
+
+Exports named films array:
+
+export const films = [ /* ... */ ]
+
+Each film object contains:
+
+✅ Routing: slug
+
+✅ Card data: title, year, duration, type, genres, tagline, description, poster
+
+✅ Detail data:
+
+originalTitle, language, runtime, releaseYear, genreFull, format
+
+plotSummary, aboutProject
+
+credits: array of { role, name }
+
+gallery: image paths
+
+watchUrl: Vimeo link
+
+🎨 THEMING LOGIC
+
+Managed by useTheme.js
+
+HeaderNav, FilmCard buttons, and page layouts use isLight to toggle styles
+
+Home page overrides theme with white-only nav

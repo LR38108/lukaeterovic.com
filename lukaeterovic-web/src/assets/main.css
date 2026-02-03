@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Font */
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('/assets/fonts/EBGaramond-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ----------------------------- */
+/* ABSOLUTE CANVAS RESET (KEY)   */
+/* ----------------------------- */
+
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;              /* 🔴 THIS WAS MISSING */
+  padding: 0;
+  background-color: #fff; /* default light */
+  color: #000;
+  overflow-x: hidden;     /* kill subpixel bleed forever */
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+/* Dark mode canvas */
+html[data-theme='dark'],
+html[data-theme='dark'] body,
+html[data-theme='dark'] #app {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Font */
+body {
+  font-family: 'EB Garamond', serif;
+}
+
+/* ----------------------------- */
+/* OPTIONAL HELPER CLASSES       */
+/* ----------------------------- */
+
+.theme-light {
+  @apply bg-white text-black;
+}
+
+.theme-dark {
+  @apply bg-black text-white;
+}
