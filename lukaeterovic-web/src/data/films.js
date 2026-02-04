@@ -44,10 +44,8 @@ and the psychological weight of foresight.
     ],
 
     gallery: [
-      '/assets/images/film/Hunch/still-1.jpg',
-      '/assets/images/film/Hunch/still-2.jpg',
-      '/assets/images/film/Hunch/still-3.jpg',
-      '/assets/images/film/Hunch/still-4.jpg'
+      'ca652a1e-e96d-4d8b-b70e-23b775297e08.jpeg',
+      'Post Portrait@2x.png',
     ],
 
     watchUrl: 'https://vimeo.com/your-link',

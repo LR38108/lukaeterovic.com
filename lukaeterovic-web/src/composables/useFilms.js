@@ -1,95 +1,185 @@
 // src/composables/useFilms.js
-import { computed, ref } from 'vue'
-import { films as defaultFilms } from '@/data/films.js'
+import { ref, computed } from 'vue'
 
-const STORAGE_KEY = 'films_admin_v1'
+const API_BASE = 'https://lukaeterovic-api.radan-luka.workers.dev'
+const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN
 
-function safeParse(json, fallback) {
-  try {
-    const parsed = JSON.parse(json)
-    return parsed ?? fallback
-  } catch {
-    return fallback
-  }
-}
+const filmsRef = ref([])
+const loading = ref(false)
+const error = ref(null)
 
-function loadInitialFilms() {
-  if (typeof window === 'undefined') return [...defaultFilms]
-  const raw = localStorage.getItem(STORAGE_KEY)
-  if (!raw) return [...defaultFilms]
-  const parsed = safeParse(raw, null)
-  return Array.isArray(parsed) ? parsed : [...defaultFilms]
-}
-
-const filmsRef = ref(loadInitialFilms())
-
-function persist() {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filmsRef.value))
-}
-
-function slugify(input) {
-  return String(input || '')
-    .trim()
-    .toLowerCase()
-    .replace(/['"]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
+let initialized = false
 
 export function useFilms() {
-  const films = computed(() => filmsRef.value)
-
-  const getBySlug = (slug) => filmsRef.value.find((f) => f.slug === slug)
-
-  const addFilm = (film) => {
-    const next = { ...film }
-    next.slug = next.slug ? slugify(next.slug) : slugify(next.title)
-    if (!next.slug) throw new Error('Slug is required')
-
-    const exists = filmsRef.value.some((f) => f.slug === next.slug)
-    if (exists) throw new Error('Slug already exists')
-
-    filmsRef.value = [next, ...filmsRef.value]
-    persist()
+  /* -----------------------------
+   * INIT (LOAD ONCE)
+   * ----------------------------- */
+  async function init() {
+    if (initialized) return
+    initialized = true
+    await fetchFilms()
   }
 
-  const updateFilm = (slug, patch) => {
-    const idx = filmsRef.value.findIndex((f) => f.slug === slug)
-    if (idx === -1) throw new Error('Film not found')
+  /* -----------------------------
+   * FETCH
+   * ----------------------------- */
+  async function fetchFilms() {
+    loading.value = true
+    error.value = null
 
-    const updated = { ...filmsRef.value[idx], ...patch }
+    try {
+      const res = await fetch(`${API_BASE}/films`)
+      if (!res.ok) throw new Error('Failed to fetch films')
 
-    // If slug changes, ensure uniqueness
-    if (patch.slug && patch.slug !== slug) {
-      const newSlug = slugify(patch.slug)
-      const exists = filmsRef.value.some((f, i) => i !== idx && f.slug === newSlug)
-      if (exists) throw new Error('New slug already exists')
-      updated.slug = newSlug
+      const raw = await res.json()
+
+      filmsRef.value = raw.map((f) => ({
+        /* identifiers */
+        slug: f.slug,
+        title: f.title,
+
+        /* FilmCard fields */
+        year: f.year,
+        duration: f.duration,
+        type: f.type,
+        genres: f.genres,
+        tagline: f.tagline,
+        description: f.description,
+        poster: f.poster,
+
+        /* FilmDetail fields */
+        originalTitle: f.original_title,
+        language: f.language,
+        runtime: f.runtime,
+        releaseYear: f.release_year,
+        genreFull: f.genre_full,
+        format: f.format,
+
+        plotSummary: f.plot_summary,
+        aboutProject: f.about_project,
+
+        /* parsed JSON fields (NO URL MUTATION) */
+        credits: safeJSON(f.credits, []),
+        gallery: safeJSON(f.gallery, []),
+        tech: safeJSON(f.tech, {}),
+
+        watchUrl: f.watch_url,
+
+        createdAt: f.created_at,
+        updatedAt: f.updated_at
+      }))
+    } catch (e) {
+      error.value = e.message || 'Unknown error'
+      console.error(e)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /* -----------------------------
+   * HELPERS
+   * ----------------------------- */
+  function slugify(input) {
+    return String(input || '')
+      .trim()
+      .toLowerCase()
+      .replace(/['"]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+  }
+
+  function getBySlug(slug) {
+    return filmsRef.value.find((f) => f.slug === slug)
+  }
+
+  function safeJSON(value, fallback) {
+    try {
+      if (typeof value === 'string') return JSON.parse(value)
+      return value ?? fallback
+    } catch {
+      return fallback
+    }
+  }
+
+  /* -----------------------------
+   * CRUD (API-BACKED)
+   * ----------------------------- */
+  async function addFilm(film) {
+    const payload = {
+      ...film,
+      slug: film.slug ? slugify(film.slug) : slugify(film.title)
     }
 
-    filmsRef.value.splice(idx, 1, updated)
-    filmsRef.value = [...filmsRef.value]
-    persist()
+    if (!payload.slug) {
+      throw new Error('Slug is required')
+    }
+
+    const res = await fetch(`${API_BASE}/films`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ADMIN_TOKEN}`
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!res.ok) {
+      const msg = await res.text()
+      throw new Error(msg || 'Failed to create film')
+    }
+
+    await fetchFilms()
   }
 
-  const removeFilm = (slug) => {
+  async function updateFilm(slug, patch) {
+    const res = await fetch(`${API_BASE}/films/${slug}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ADMIN_TOKEN}`
+      },
+      body: JSON.stringify(patch)
+    })
+
+    if (!res.ok) {
+      const msg = await res.text()
+      throw new Error(msg || 'Failed to update film')
+    }
+
+    await fetchFilms()
+  }
+
+  async function removeFilm(slug) {
+    const res = await fetch(`${API_BASE}/films/${slug}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${ADMIN_TOKEN}`
+      }
+    })
+
+    if (!res.ok) {
+      const msg = await res.text()
+      throw new Error(msg || 'Failed to delete film')
+    }
+
     filmsRef.value = filmsRef.value.filter((f) => f.slug !== slug)
-    persist()
   }
 
-  const resetToDefault = () => {
-    filmsRef.value = [...defaultFilms]
-    persist()
-  }
-
+  /* -----------------------------
+   * PUBLIC API
+   * ----------------------------- */
   return {
-    films,
+    films: computed(() => filmsRef.value),
+    loading,
+    error,
+
+    init,
+    fetchFilms,
+
     getBySlug,
     addFilm,
     updateFilm,
     removeFilm,
-    resetToDefault,
     slugify
   }
 }

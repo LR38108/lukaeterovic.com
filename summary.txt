@@ -1,0 +1,289 @@
+📽 LukaEterovic.com – Current Architecture Summary
+🧠 What this project is
+
+A personal film portfolio website with:
+
+Public film listing & film detail pages
+
+A hidden admin panel (Vue) to manage films
+
+Image uploads to Cloudflare R2 (CDN-backed)
+
+Film metadata stored in Cloudflare D1 (SQLite)
+
+API powered by Cloudflare Workers
+
+Frontend built in Vue 3 + Vite
+
+🧱 Tech Stack
+Frontend
+
+Vue 3 (Composition API)
+
+Vite
+
+Tailwind CSS
+
+Pages:
+
+AdminPage.vue
+
+FilmDetailPage.vue
+
+Film listing page (FilmCard-based)
+
+Backend / Infra
+
+Cloudflare Workers (API)
+
+Cloudflare D1 (SQLite DB)
+
+Cloudflare R2 (Object storage for images)
+
+Cloudflare CDN
+
+Auth via Bearer token (ADMIN_TOKEN)
+
+No traditional server, no Node hosting
+
+📦 Cloudflare Resources
+Worker
+
+Name: lukaeterovic-api
+
+URL:
+https://lukaeterovic-api.radan-luka.workers.dev
+
+R2
+
+Bucket: lukaeterovic-films
+
+Images are stored as:
+
+{slug}/{uuid}.{ext}
+
+Public URLs look like:
+
+https://pub-xxxx.r2.dev/hunch/uuid.jpg
+D1
+
+Database: lukaeterovic-web-db
+
+Table: films
+
+🗄 Database: films table (D1)
+
+Each row represents one film.
+
+Columns (simplified)
+
+slug (TEXT, PRIMARY KEY)
+
+title
+
+year
+
+duration
+
+type
+
+genres
+
+tagline
+
+description
+
+poster
+
+original_title
+
+language
+
+runtime
+
+release_year
+
+genre_full
+
+format
+
+plot_summary
+
+about_project
+
+credits → JSON string
+
+gallery → JSON string (array of FULL URLs)
+
+tech → JSON string
+
+watch_url
+
+created_at
+
+updated_at
+
+⚠️ Important rule:
+gallery stores FULL absolute URLs, not filenames, not relative paths.
+
+🔌 API Endpoints (Cloudflare Worker)
+Public
+
+GET /films → list all films
+
+GET /films/:slug → single film
+
+GET /health
+
+Protected (Bearer ADMIN_TOKEN)
+
+POST /films
+
+PUT /films/:slug
+
+DELETE /films/:slug
+
+POST /upload (multipart/form-data)
+
+Upload behavior
+
+Accepts file + slug
+
+Saves to R2 as:
+
+{slug}/{uuid}.{ext}
+
+Returns:
+
+{
+  "url": "https://pub-xxxx.r2.dev/slug/uuid.jpg"
+}
+🧩 Frontend Data Layer
+File: src/composables/useFilms.js
+
+Responsibilities:
+
+Fetch films from API
+
+Map DB fields → frontend shape
+
+Parse JSON fields (credits, gallery, tech)
+
+No CDN logic in views
+
+No localStorage persistence anymore
+
+Key rules:
+
+Gallery URLs are used as-is
+
+No prefixing, no slug concatenation
+
+film.gallery[] is render-ready
+
+🎛 Admin Panel (AdminPage.vue)
+
+Features:
+
+Hidden route
+
+Local passcode auth (non-secure by design)
+
+Film list (edit / delete)
+
+Full film editor:
+
+All metadata fields
+
+Credits (add/remove)
+
+Gallery thumbnails
+
+Drag & drop reordering (SortableJS, mouse + touch)
+
+Upload images:
+
+Sends file → Worker /upload
+
+Receives URL
+
+Pushes URL into draft.gallery
+
+Saving film updates D1 via API
+
+🎬 Film Detail Page (FilmDetailPage.vue)
+
+Features:
+
+Loads film via useFilms().getBySlug
+
+Displays:
+
+Poster
+
+Metadata bar
+
+Plot / About
+
+Credits
+
+Tech specs
+
+Watch link
+
+Gallery:
+
+Uses film.gallery directly
+
+Thumbnails + lightbox
+
+No URL manipulation
+
+Fixes all previous “double URL” bugs
+
+✅ Current State (Important)
+
+✅ Uploading images works
+
+✅ Images show in Admin thumbnails
+
+✅ Images show in FilmDetailPage
+
+✅ Credits + gallery save correctly
+
+✅ No more double URLs
+
+✅ DB is source of truth
+
+❌ films.js dummy data no longer used
+
+🧠 Key Architectural Decision (do NOT undo)
+
+All gallery items are full URLs.
+No frontend code should ever try to “build” image URLs again.
+
+This single rule solved:
+
+double URLs
+
+broken thumbnails
+
+admin vs detail mismatch
+
+CDN confusion
+
+If you paste this entire summary into a new chat, you can continue straight into:
+
+image deletion
+
+thumbnails / variants
+
+caching
+
+auth hardening
+
+blog posts (same stack)
+
+iOS admin app later
+
+You’re finally on rails 🚄

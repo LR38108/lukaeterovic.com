@@ -86,12 +86,13 @@
         </div>
       </div>
 
-      <div v-if="film.gallery?.length" class="mt-14">
+      <!-- GALLERY -->
+      <div v-if="film?.gallery?.length" class="mt-14">
         <h3 class="font-bold mb-4 tracking-widest">GALLERY</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           <button
             v-for="(img, i) in film.gallery"
-            :key="i"
+            :key="img"
             type="button"
             class="group relative overflow-hidden rounded-sm"
             @click="openLightbox(i)"
@@ -109,7 +110,7 @@
 
       <FilmLightbox
         :open="lightboxOpen"
-        :images="film.gallery || []"
+        :images="film.gallery"
         :startIndex="activeIndex"
         @update:index="activeIndex = $event"
         @close="lightboxOpen = false"
@@ -128,19 +129,29 @@ const props = defineProps({
   slug: { type: String, required: true }
 })
 
+
 const { isLight } = useTheme()
-const themeClass = computed(() => (isLight.value ? 'bg-white text-black' : 'bg-black text-white'))
+const themeClass = computed(() =>
+  isLight.value ? 'bg-white text-black' : 'bg-black text-white'
+)
 
 const { getBySlug } = useFilms()
 const film = computed(() => getBySlug(props.slug))
 
+/* ============================
+   LIGHTBOX
+============================ */
 const lightboxOpen = ref(false)
 const activeIndex = ref(0)
+
 function openLightbox(i) {
   activeIndex.value = i
   lightboxOpen.value = true
 }
 
+/* ============================
+   HELPERS
+============================ */
 function cleanText(value) {
   if (!value) return ''
   return String(value).replace(/\s+\n/g, '\n').trim()
@@ -149,6 +160,7 @@ function cleanText(value) {
 const tech = computed(() => {
   const f = film.value
   if (!f) return {}
+
   return {
     runtime: f.runtime || f.tech?.runtime,
     year: f.releaseYear || f.year || f.tech?.year,
@@ -162,6 +174,14 @@ const tech = computed(() => {
 
 const hasTech = computed(() => {
   const t = tech.value
-  return !!(t.runtime || t.year || t.originalTitle || t.genre || t.type || t.language || t.format)
+  return !!(
+    t.runtime ||
+    t.year ||
+    t.originalTitle ||
+    t.genre ||
+    t.type ||
+    t.language ||
+    t.format
+  )
 })
 </script>
