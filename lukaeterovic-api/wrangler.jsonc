@@ -13,6 +13,10 @@
     "enabled": true
   },
 
+  "vars": {
+  "PUBLIC_MEDIA_BASE": "https://pub-6c0f885812f34962a04725c620efb1d2.r2.dev"
+},
+
   /**
    * R2 Bucket Binding
    * This exposes the bucket as env.MEDIA_BUCKET in the Worker
@@ -22,7 +26,15 @@
       "binding": "MEDIA_BUCKET",
       "bucket_name": "lukaeterovic-films"
     }
-  ]
+  ],
+
+  "d1_databases": [
+  {
+    "binding": "DB",
+    "database_name": "lukaeterovic-web-db",
+    "database_id": "1c932ff7-9697-464a-ac18-715ce1d6105a"
+  }
+]
 
   /**
    * Smart Placement

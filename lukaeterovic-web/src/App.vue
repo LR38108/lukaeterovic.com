@@ -7,8 +7,16 @@
 
 <script setup>
 import { computed } from 'vue'
+import { onMounted } from 'vue'
 import HeaderNav from '@/components/HeaderNav.vue'
 import { useTheme } from '@/composables/useTheme'
+import { useFilms } from '@/composables/useFilms'
+
+const { init } = useFilms()
+
+onMounted(() => {
+  init()
+})
 
 const { isLight } = useTheme()
 

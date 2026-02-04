@@ -193,8 +193,16 @@
             <section class="section">
               <h3 class="section-title">Gallery</h3>
 
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                class="mb-4"
+                @change="onFilesSelected"
+              />
+
               <p class="text-xs opacity-60 mb-4">
-                Drag images to reorder. Works on mouse & touch.
+                Drag images to reorder. Uploads go to Cloudflare R2.
               </p>
 
               <div
@@ -212,8 +220,11 @@
                   />
 
                   <button
+                    @click="async () => {
+                      await deleteImage(img)
+                      draft.gallery.splice(i, 1)
+                    }"
                     class="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-1 rounded"
-                    @click="draft.gallery.splice(i, 1)"
                   >
                     ✕
                   </button>
@@ -223,13 +234,6 @@
                   </div>
                 </div>
               </div>
-
-              <button
-                class="mt-4 text-sm underline opacity-70"
-                @click="draft.gallery.push('')"
-              >
-                + Add image path
-              </button>
             </section>
             <!-- WATCH -->
             <section class="section">
@@ -268,6 +272,20 @@ const inputClass = computed(() =>
     ? 'bg-white text-black border border-black/30'
     : 'bg-black text-white border border-white/30'
 )
+
+const API_BASE = 'https://lukaeterovic-api.radan-luka.workers.dev'
+const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN
+
+async function deleteImage(url) {
+  await fetch(`${API_BASE}/media`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${ADMIN_TOKEN}`
+    },
+    body: JSON.stringify({ url })
+  })
+}
 
 const galleryEl = ref(null)
 let sortableInstance = null
@@ -332,6 +350,37 @@ function onDrop(dropIndex) {
 }
 
 const { films, updateFilm, removeFilm } = useFilms()
+
+async function onFilesSelected(e) {
+  const files = Array.from(e.target.files)
+
+  for (const file of files) {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('slug', draft.value.slug)
+
+    const res = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/upload`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_ADMIN_TOKEN}`
+        },
+        body: form
+      }
+    )
+
+    if (!res.ok) {
+      alert('Upload failed')
+      continue
+    }
+
+    const data = await res.json()
+    draft.value.gallery.push(data.url)
+  }
+
+  e.target.value = ''
+}
 
 const isNew = ref(false)
 const draft = ref({})
