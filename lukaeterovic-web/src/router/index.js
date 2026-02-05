@@ -10,9 +10,55 @@ const routes = [
   { path: '/', name: 'Home', component: HomePage },
   { path: '/film', name: 'Film', component: FilmPage },
   { path: '/film/:slug', name: 'FilmDetail', component: FilmDetailPage, props: true },
+  {
+    path: '/photography',
+    component: () => import('@/views/GalleriesPage.vue')
+  },
+  {
+    path: '/photography/:slug',
+    component: () => import('@/views/GalleryDetailPage.vue')
+  },
+  {
+  path: '/music-videos',
+  component: () => import('@/views/MusicVideosPage.vue')
+  },
+  {
+    path: '/music-videos/:slug',
+    component: () => import('@/views/MusicVideoDetailPage.vue')
+  },
+  {
+  path: '/blog',
+  component: () => import('@/views/BlogPage.vue')
+  },
+  {
+    path: '/blog/:slug',
+    component: () => import('@/views/BlogDetailPage.vue')
+  },
 
   // Hidden admin page (manual URL entry)
-  { path: '/admin', name: 'Admin', component: AdminPage },
+  {
+  path: '/admin',
+  component: () => import('@/views/AdminPage.vue'),
+  children: [
+    { path: '', redirect: '/admin/films' },
+    {
+      path: 'films',
+      component: () => import('@/views/admin/AdminFilms.vue')
+    },
+    {
+      path: 'galleries',
+      component: () => import('@/views/admin/AdminGalleries.vue')
+    },
+    {
+      path: 'music-videos',
+      component: () => import('@/views/admin/AdminMusicVideos.vue')
+    },
+    {
+      path: 'blog',
+      component: () => import('@/views/admin/AdminBlog.vue')
+    }
+  ]
+},
 
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFoundPage }
 ]
