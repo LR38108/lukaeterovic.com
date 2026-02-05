@@ -18,10 +18,12 @@
           <CategoryCard
             title="PHOTOGRAPHY"
             image="/assets/images/Photography.jpeg"
+            route="/photography"
           />
           <CategoryCard
             title="MUSIC VIDEOS"
             image="/assets/images/MusicVideo.jpg"
+            route="/music-videos"
           />
         </div>
       </div>

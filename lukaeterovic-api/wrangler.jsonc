@@ -14,7 +14,7 @@
   },
 
   "vars": {
-  "PUBLIC_MEDIA_BASE": "https://pub-6c0f885812f34962a04725c620efb1d2.r2.dev"
+  "PUBLIC_MEDIA_BASE": "https://pub-50a720bb6a034fa1acd654c5377206a3.r2.dev"
 },
 
   /**
@@ -24,7 +24,7 @@
   "r2_buckets": [
     {
       "binding": "MEDIA_BUCKET",
-      "bucket_name": "lukaeterovic-films"
+      "bucket_name": "lukaeterovic-media"
     }
   ],
 
