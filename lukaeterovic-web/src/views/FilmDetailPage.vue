@@ -14,12 +14,8 @@
       <div class="grid gap-10 lg:grid-cols-2 lg:items-start">
         <div class="lg:sticky lg:top-24">
           <div class="flex justify-center lg:justify-start">
-            <img
-              :src="film.poster"
-              alt="Poster"
-              class="w-full max-w-md lg:max-w-full max-h-[70vh] lg:max-h-[78vh] object-contain"
-              loading="lazy"
-            />
+            <img :src="film.poster" alt="Poster"
+              class="w-full max-w-md lg:max-w-full max-h-[70vh] lg:max-h-[78vh] object-contain" loading="lazy" />
           </div>
         </div>
 
@@ -29,8 +25,7 @@
           </h2>
 
           <div
-            class="mt-6 flex text-center text-sm font-semibold border border-white/40 divide-x divide-white/40 bg-black text-white rounded-sm overflow-hidden max-w-xl lg:max-w-none lg:mx-0 mx-auto"
-          >
+            class="mt-6 flex text-center text-sm font-semibold border border-white/40 divide-x divide-white/40 bg-black text-white rounded-sm overflow-hidden max-w-xl lg:max-w-none lg:mx-0 mx-auto">
             <div class="flex-1 py-2">{{ film.year }}</div>
             <div class="flex-1 py-2">{{ film.duration }}</div>
             <div class="flex-1 py-2">{{ film.type }}</div>
@@ -74,12 +69,8 @@
           </div>
 
           <div class="mt-10 text-center lg:text-left" v-if="film.watchUrl">
-            <a
-              :href="film.watchUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-block px-6 py-3 border border-white text-white bg-black uppercase tracking-wider"
-            >
+            <a :href="film.watchUrl" target="_blank" rel="noopener noreferrer"
+              class="inline-block px-6 py-3 border border-white text-white bg-black uppercase tracking-wider">
               ▶ Watch Film
             </a>
           </div>
@@ -90,98 +81,97 @@
       <div v-if="film?.gallery?.length" class="mt-14">
         <h3 class="font-bold mb-4 tracking-widest">GALLERY</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          <button
-            v-for="(img, i) in film.gallery"
-            :key="img"
-            type="button"
-            class="group relative overflow-hidden rounded-sm"
-            @click="openLightbox(i)"
-          >
-            <img
-              :src="img"
+          <button v-for="(img, i) in galleryImages" :key="img.url + i" type="button"
+            class="group relative overflow-hidden rounded-sm" @click="openLightbox(i)">
+            <img :src="img.url"
               class="w-full aspect-square object-cover bg-gray-300 transition-transform duration-300 group-hover:scale-[1.02]"
-              alt=""
-              loading="lazy"
-            />
-            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+              loading="lazy" />
           </button>
         </div>
       </div>
 
-      <FilmLightbox
-        :open="lightboxOpen"
-        :images="film.gallery"
-        :startIndex="activeIndex"
-        @update:index="activeIndex = $event"
-        @close="lightboxOpen = false"
+      <CustomLightbox
+        v-model="lightboxOpen"
+        :images="galleryImages"
+        :initial-index="activeIndex"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import { useTheme } from '@/composables/useTheme'
-import FilmLightbox from '@/components/FilmLightbox.vue'
-import { useFilms } from '@/composables/useFilms.js'
+  import { computed, ref } from 'vue'
+  import { useTheme } from '@/composables/useTheme'
+  import CustomLightbox from '@/components/CustomLightbox.vue'
+  import { useFilms } from '@/composables/useFilms.js'
 
-const props = defineProps({
-  slug: { type: String, required: true }
-})
+  const props = defineProps({
+    slug: { type: String, required: true }
+  })
 
 
-const { isLight } = useTheme()
-const themeClass = computed(() =>
-  isLight.value ? 'bg-white text-black' : 'bg-black text-white'
-)
-
-const { getBySlug } = useFilms()
-const film = computed(() => getBySlug(props.slug))
-
-/* ============================
-   LIGHTBOX
-============================ */
-const lightboxOpen = ref(false)
-const activeIndex = ref(0)
-
-function openLightbox(i) {
-  activeIndex.value = i
-  lightboxOpen.value = true
-}
-
-/* ============================
-   HELPERS
-============================ */
-function cleanText(value) {
-  if (!value) return ''
-  return String(value).replace(/\s+\n/g, '\n').trim()
-}
-
-const tech = computed(() => {
-  const f = film.value
-  if (!f) return {}
-
-  return {
-    runtime: f.runtime || f.tech?.runtime,
-    year: f.releaseYear || f.year || f.tech?.year,
-    originalTitle: f.originalTitle || f.tech?.originalTitle,
-    genre: f.genreFull || f.genres || f.tech?.genre,
-    type: f.format || f.type || f.tech?.type,
-    language: f.language || f.tech?.language,
-    format: f.format
-  }
-})
-
-const hasTech = computed(() => {
-  const t = tech.value
-  return !!(
-    t.runtime ||
-    t.year ||
-    t.originalTitle ||
-    t.genre ||
-    t.type ||
-    t.language ||
-    t.format
+  const { isLight } = useTheme()
+  const themeClass = computed(() =>
+    isLight.value ? 'bg-white text-black' : 'bg-black text-white'
   )
-})
+
+  const { getBySlug } = useFilms()
+  const film = computed(() => getBySlug(props.slug))
+
+  /* ============================
+     LIGHTBOX
+  ============================ */
+  const lightboxOpen = ref(false)
+  const activeIndex = ref(0)
+
+  function openLightbox(i) {
+    activeIndex.value = i
+    lightboxOpen.value = true
+  }
+
+  /* ============================
+     HELPERS
+  ============================ */
+  function cleanText(value) {
+    if (!value) return ''
+    return String(value).replace(/\s+\n/g, '\n').trim()
+  }
+
+  const galleryImages = computed(() => {
+    if (!film.value?.gallery) return []
+
+    return film.value.gallery.map(img =>
+      typeof img === 'string'
+        ? { url: img }
+        : img
+    )
+  })
+
+  const tech = computed(() => {
+    const f = film.value
+    if (!f) return {}
+
+    return {
+      runtime: f.runtime || f.tech?.runtime,
+      year: f.releaseYear || f.year || f.tech?.year,
+      originalTitle: f.originalTitle || f.tech?.originalTitle,
+      genre: f.genreFull || f.genres || f.tech?.genre,
+      type: f.format || f.type || f.tech?.type,
+      language: f.language || f.tech?.language,
+      format: f.format
+    }
+  })
+
+  const hasTech = computed(() => {
+    const t = tech.value
+    return !!(
+      t.runtime ||
+      t.year ||
+      t.originalTitle ||
+      t.genre ||
+      t.type ||
+      t.language ||
+      t.format
+    )
+  })
 </script>

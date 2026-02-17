@@ -8,7 +8,7 @@
     </span>
 
     <router-link to="/">
-      <img :src="logoSrc" class="h-8 md:h-10" />
+      <img :src="logoSrc" class="h-6 md:h-8" />
     </router-link>
 
     <FullMenu :isOpen="isMenuOpen" @close="isMenuOpen = false" />

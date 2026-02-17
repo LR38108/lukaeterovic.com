@@ -11,27 +11,14 @@
       </header>
 
       <!-- POSTS -->
-      <article
-        v-for="post in posts"
-        :key="post.slug"
-        class="mb-20"
-      >
-        <RouterLink
-          :to="`/blog/${post.slug}`"
-          class="block group"
-        >
+      <article v-for="post in publishedPosts" :key="post.slug" class="mb-20">
+        <RouterLink :to="`/blog/${post.slug}`" class="block group">
 
           <!-- COVER -->
-          <div
-            v-if="post.cover_image"
-            class="mb-6 aspect-[16/9] overflow-hidden rounded bg-black/5"
-          >
-            <img
-              :src="post.cover_image"
-              class="w-full h-full object-cover
+          <div v-if="post.cover_image" class="mb-6 aspect-[16/9] overflow-hidden rounded bg-black/5">
+            <img :src="post.cover_image" class="w-full h-full object-cover
                      transition-transform duration-500
-                     group-hover:scale-105"
-            />
+                     group-hover:scale-105" />
           </div>
 
           <!-- TITLE -->
@@ -40,10 +27,7 @@
           </h2>
 
           <!-- EXCERPT -->
-          <p
-            v-if="post.excerpt"
-            class="opacity-70 mb-3"
-          >
+          <p v-if="post.excerpt" class="opacity-70 mb-3">
             {{ post.excerpt }}
           </p>
 
@@ -60,9 +44,13 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { useBlog } from '@/composables/useBlog'
+  import {computed, onMounted } from 'vue'
+  import { useBlog } from '@/composables/useBlog'
 
-const { posts, init } = useBlog()
-onMounted(init)
+  const { posts, init } = useBlog()
+  onMounted(init)
+
+  const publishedPosts = computed(() =>
+  posts.value.filter(p => p?.published == 1)
+)
 </script>

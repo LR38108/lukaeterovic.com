@@ -37,7 +37,7 @@
       <!-- Image -->
       <div class="w-full h-full px-4 sm:px-10 flex items-center justify-center">
         <img
-          :src="currentSrc"
+          :src="currentSrc.url"
           alt=""
           class="max-w-full max-h-[85vh] object-contain select-none"
           draggable="false"
