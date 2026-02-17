@@ -7,6 +7,12 @@ export interface Env {
   PUBLIC_MEDIA_BASE: string
 }
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
 /* =====================
    TYPES
 ===================== */
@@ -70,95 +76,118 @@ type BlogPostPayload = {
   published?: boolean
 }
 
+function withCors(response: Response): Response {
+  response.headers.set('Access-Control-Allow-Origin', '*')
+  response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  return response
+}
+
 /* =====================
    FETCH
 ===================== */
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url)
-    const method = request.method
+    try {
+      const url = new URL(request.url)
+      const method = request.method
 
-    if (method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders() })
-    }
-
-    if (method !== 'GET') {
-      const auth = request.headers.get('Authorization')
-      if (!auth || auth !== `Bearer ${env.ADMIN_TOKEN}`) {
-        return json({ error: 'Unauthorized' }, 401)
+      if (method === 'OPTIONS') {
+        return new Response(null, { headers: corsHeaders() })
       }
+
+      if (method !== 'GET') {
+        const auth = request.headers.get('Authorization')
+        if (!auth || auth !== `Bearer ${env.ADMIN_TOKEN}`) {
+          return json({ error: 'Unauthorized' }, 401)
+        }
+      }
+
+      // ----- Upload / Media -----
+      if (url.pathname === '/upload' && method === 'POST')
+        return uploadMedia(request, env)
+
+      if (url.pathname === '/media' && method === 'DELETE')
+        return deleteMedia(request, env)
+
+      /* ===== FILMS ===== */
+
+      if (url.pathname === '/films' && method === 'GET')
+        return getFilms(env)
+
+      if (url.pathname.startsWith('/films/') && method === 'GET')
+        return getFilm(url.pathname.split('/')[2], env)
+
+      if (url.pathname === '/films' && method === 'POST')
+        return createFilm(request, env)
+
+      if (url.pathname.startsWith('/films/') && method === 'PUT')
+        return updateFilm(url.pathname.split('/')[2], request, env)
+
+      if (url.pathname.startsWith('/films/') && method === 'DELETE')
+        return deleteFilm(url.pathname.split('/')[2], env)
+
+      /* ===== GALLERIES ===== */
+
+      if (url.pathname === '/galleries' && method === 'GET')
+        return getGalleries(env)
+
+      if (url.pathname.startsWith('/galleries/') && method === 'GET')
+        return getGallery(url.pathname.split('/')[2], env)
+
+      if (url.pathname === '/galleries' && method === 'POST')
+        return createGallery(request, env)
+
+      if (url.pathname.startsWith('/galleries/') && method === 'PUT')
+        return updateGallery(url.pathname.split('/')[2], request, env)
+
+      if (url.pathname.startsWith('/galleries/') && method === 'DELETE')
+        return deleteGallery(url.pathname.split('/')[2], env)
+
+      /* ===== MUSIC VIDEOS ===== */
+
+      if (url.pathname === '/music-videos' && method === 'GET')
+        return getMusicVideos(env)
+
+      if (url.pathname.startsWith('/music-videos/') && method === 'GET')
+        return getMusicVideo(url.pathname.split('/')[2], env)
+
+      if (url.pathname === '/music-videos' && method === 'POST')
+        return createMusicVideo(request, env)
+
+      if (url.pathname.startsWith('/music-videos/') && method === 'PUT')
+        return updateMusicVideo(url.pathname.split('/')[2], request, env)
+
+      if (url.pathname.startsWith('/music-videos/') && method === 'DELETE')
+        return deleteMusicVideo(url.pathname.split('/')[2], env)
+
+      /* ===== BLOG ===== */
+
+      if (url.pathname === '/blog' && method === 'POST')
+        return createBlogPost(request, env)
+
+      if (url.pathname.startsWith('/blog/') && method === 'PUT')
+        return updateBlogPost(url.pathname.split('/')[2], request, env)
+
+      if (url.pathname === '/blog' && method === 'GET')
+        return getBlogPosts(env)
+
+      if (url.pathname.startsWith('/blog/') && method === 'GET')
+        return getBlogPost(url.pathname.split('/')[2], env)
+
+      if (url.pathname.startsWith('/blog/') && method === 'DELETE')
+        return deleteBlogPost(url.pathname.split('/')[2], env)
+
+      if (url.pathname === '/health')
+        return json({ ok: true })
+
+      return json({ error: 'Not found' }, 404)
+
+    } catch (err) {
+      console.error('Worker error:', err)
+      return json({ error: 'Internal Server Error' }, 500)
     }
-
-    if (url.pathname === '/upload' && method === 'POST') {
-      return uploadMedia(request, env)
-    }
-
-    if (url.pathname === '/media' && method === 'DELETE') {
-      return deleteMedia(request, env)
-    }
-
-    /* ===== FILMS ===== */
-
-    if (url.pathname === '/films' && method === 'GET') return getFilms(env)
-    if (url.pathname.startsWith('/films/') && method === 'GET')
-      return getFilm(url.pathname.split('/')[2], env)
-    if (url.pathname === '/films' && method === 'POST')
-      return createFilm(request, env)
-    if (url.pathname.startsWith('/films/') && method === 'PUT')
-      return updateFilm(url.pathname.split('/')[2], request, env)
-    if (url.pathname.startsWith('/films/') && method === 'DELETE')
-      return deleteFilm(url.pathname.split('/')[2], env)
-
-    /* ===== GALLERIES ===== */
-
-    if (url.pathname === '/galleries' && method === 'GET') return getGalleries(env)
-    if (url.pathname.startsWith('/galleries/') && method === 'GET')
-      return getGallery(url.pathname.split('/')[2], env)
-    if (url.pathname === '/galleries' && method === 'POST')
-      return createGallery(request, env)
-    if (url.pathname.startsWith('/galleries/') && method === 'PUT')
-      return updateGallery(url.pathname.split('/')[2], request, env)
-    if (url.pathname.startsWith('/galleries/') && method === 'DELETE')
-      return deleteGallery(url.pathname.split('/')[2], env)
-
-    /* ===== MUSIC VIDEOS ===== */
-
-    if (url.pathname === '/music-videos' && method === 'GET')
-      return getMusicVideos(env)
-
-    if (url.pathname.startsWith('/music-videos/') && method === 'GET')
-      return getMusicVideo(url.pathname.split('/')[2], env)
-
-    if (url.pathname === '/music-videos' && method === 'POST')
-      return createMusicVideo(request, env)
-
-    if (url.pathname.startsWith('/music-videos/') && method === 'PUT')
-      return updateMusicVideo(url.pathname.split('/')[2], request, env)
-
-    if (url.pathname.startsWith('/music-videos/') && method === 'DELETE')
-      return deleteMusicVideo(url.pathname.split('/')[2], env)
-
-    /* ===== BLOG ===== */
-
-    if (url.pathname === '/blog' && method === 'GET')
-      return getBlogPosts(env)
-
-    if (url.pathname.startsWith('/blog/') && method === 'GET')
-      return getBlogPost(url.pathname.split('/')[2], env)
-
-    if (url.pathname === '/blog' && method === 'POST')
-      return createBlogPost(request, env)
-
-    if (url.pathname.startsWith('/blog/') && method === 'PUT')
-      return updateBlogPost(url.pathname.split('/')[2], request, env)
-
-    if (url.pathname.startsWith('/blog/') && method === 'DELETE')
-      return deleteBlogPost(url.pathname.split('/')[2], env)
-
-    if (url.pathname === '/health') return json({ ok: true })
-
-    return json({ error: 'Not found' }, 404)
   }
 }
 
@@ -494,10 +523,11 @@ async function getBlogPosts(env: Env) {
         slug,
         title,
         excerpt,
+        content,
         cover_image,
-        created_at
+        created_at,
+        published
       FROM blog_posts
-      WHERE published = 1
       ORDER BY created_at DESC
     `)
     .all()
@@ -510,7 +540,7 @@ async function getBlogPost(slug: string, env: Env) {
     .prepare(`
       SELECT *
       FROM blog_posts
-      WHERE slug = ? AND published = 1
+      WHERE slug = ?
     `)
     .bind(slug)
     .first()
@@ -519,8 +549,22 @@ async function getBlogPost(slug: string, env: Env) {
   return json(post)
 }
 
-async function createBlogPost(request: Request, env: Env) {
-  const data = (await request.json()) as BlogPostPayload
+async function createBlogPost(
+  request: Request,
+  env: Env
+): Promise<Response> {
+  const body = (await request.json()) as Partial<BlogPostPayload>
+
+  const slug = body.slug
+  if (!slug) {
+    return json({ error: 'Missing slug' }, 400)
+  }
+
+  const title = body.title ?? ''
+  const excerpt = body.excerpt ?? ''
+  const content = body.content ?? ''
+  const cover_image = body.cover_image ?? null
+  const published = body.published ? 1 : 0
 
   await env.DB.prepare(`
     INSERT INTO blog_posts (
@@ -529,15 +573,17 @@ async function createBlogPost(request: Request, env: Env) {
       excerpt,
       content,
       cover_image,
-      published
-    ) VALUES (?,?,?,?,?,?)
+      published,
+      created_at,
+      updated_at
+    ) VALUES (?,?,?,?,?,?,datetime('now'),datetime('now'))
   `).bind(
-    data.slug,
-    data.title,
-    data.excerpt,
-    data.content,
-    data.cover_image,
-    data.published ? 1 : 0
+    slug,
+    title,
+    excerpt,
+    content,
+    cover_image,
+    published
   ).run()
 
   return json({ ok: true })
@@ -547,32 +593,49 @@ async function updateBlogPost(
   slug: string,
   request: Request,
   env: Env
-) {
-  const body = await request.json() as Partial<BlogPostPayload>
+): Promise<Response> {
+  const body = (await request.json()) as Partial<BlogPostPayload>
 
-  const title = body.title ?? ''
-  const excerpt = body.excerpt ?? ''
-  const content = body.content ?? ''
-  const cover_image = body.cover_image ?? null
-  const published = body.published ? 1 : 0
+  // Fetch existing row so we don't overwrite with empty values
+  const existing = await env.DB
+    .prepare(`SELECT * FROM blog_posts WHERE slug = ?`)
+    .bind(slug)
+    .first()
 
-  await env.DB.prepare(`
-    UPDATE blog_posts SET
-      title = ?,
-      excerpt = ?,
-      content = ?,
-      cover_image = ?,
-      published = ?,
-      updated_at = datetime('now')
-    WHERE slug = ?
-  `).bind(
-    title,
-    excerpt,
-    content,
-    cover_image,
-    published,
-    slug
-  ).run()
+  if (!existing) {
+    return json({ error: 'Post not found' }, 404)
+  }
+
+  const title = body.title ?? existing.title
+  const excerpt = body.excerpt ?? existing.excerpt
+  const content = body.content ?? existing.content
+  const cover_image =
+    body.cover_image !== undefined ? body.cover_image : existing.cover_image
+  const published =
+    body.published !== undefined
+      ? body.published ? 1 : 0
+      : existing.published
+
+  await env.DB
+    .prepare(`
+      UPDATE blog_posts SET
+        title = ?,
+        excerpt = ?,
+        content = ?,
+        cover_image = ?,
+        published = ?,
+        updated_at = datetime('now')
+      WHERE slug = ?
+    `)
+    .bind(
+      title,
+      excerpt,
+      content,
+      cover_image,
+      published,
+      slug
+    )
+    .run()
 
   return json({ ok: true })
 }
@@ -664,7 +727,9 @@ function json(data: unknown, status = 200) {
     status,
     headers: {
       'Content-Type': 'application/json',
-      ...corsHeaders()
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     }
   })
 }

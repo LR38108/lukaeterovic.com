@@ -15,7 +15,8 @@
         <div class="lg:sticky lg:top-24">
           <div class="flex justify-center lg:justify-start">
             <img :src="film.poster" alt="Poster"
-              class="w-full max-w-md lg:max-w-full max-h-[70vh] lg:max-h-[78vh] object-contain" loading="lazy" />
+              class="w-full max-w-md lg:max-w-full max-h-[70vh] lg:max-h-[78vh] object-contain"
+              loading="lazy" />
           </div>
         </div>
 
@@ -68,11 +69,14 @@
             </ul>
           </div>
 
+          <!-- WATCH BUTTON -->
           <div class="mt-10 text-center lg:text-left" v-if="film.watchUrl">
-            <a :href="film.watchUrl" target="_blank" rel="noopener noreferrer"
-              class="inline-block px-6 py-3 border border-white text-white bg-black uppercase tracking-wider">
+            <button
+              @click="openPlayer"
+              class="inline-block px-6 py-3 border border-white text-white bg-black uppercase tracking-wider hover:bg-white hover:text-black transition"
+            >
               ▶ Watch Film
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -96,82 +100,184 @@
         :initial-index="activeIndex"
       />
     </div>
+
+    <!-- DESKTOP MODAL -->
+    <transition name="fade">
+      <div
+        v-if="playerOpen && !isMobile"
+        class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+        @click.self="closePlayer"
+      >
+        <div class="relative w-[90vw] max-w-6xl aspect-video">
+          <button
+            @click="closePlayer"
+            class="absolute -top-12 right-0 text-white tracking-widest"
+          >
+            ✕ CLOSE
+          </button>
+
+          <div ref="vimeoContainer" class="w-full h-full"></div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
-  import { computed, ref } from 'vue'
-  import { useTheme } from '@/composables/useTheme'
-  import CustomLightbox from '@/components/CustomLightbox.vue'
-  import { useFilms } from '@/composables/useFilms.js'
+import { computed, ref, nextTick, onUnmounted } from 'vue'
+import Player from '@vimeo/player'
+import { useTheme } from '@/composables/useTheme'
+import CustomLightbox from '@/components/CustomLightbox.vue'
+import { useFilms } from '@/composables/useFilms.js'
 
-  const props = defineProps({
-    slug: { type: String, required: true }
+const props = defineProps({
+  slug: { type: String, required: true }
+})
+
+const { isLight } = useTheme()
+const themeClass = computed(() =>
+  isLight.value ? 'bg-white text-black' : 'bg-black text-white'
+)
+
+const { getBySlug } = useFilms()
+const film = computed(() => getBySlug(props.slug))
+
+/* LIGHTBOX */
+const lightboxOpen = ref(false)
+const activeIndex = ref(0)
+
+function openLightbox(i) {
+  activeIndex.value = i
+  lightboxOpen.value = true
+}
+
+/* PLAYER */
+
+const playerOpen = ref(false)
+const vimeoContainer = ref(null)
+let vimeoPlayer = null
+
+const isMobile = window.matchMedia('(max-width: 768px)').matches
+
+function extractVimeoId(url) {
+  const match = url.match(/vimeo\.com\/(\d+)/)
+  return match ? match[1] : null
+}
+
+async function openPlayer() {
+  const videoId = extractVimeoId(film.value.watchUrl)
+  if (!videoId) return
+
+  if (isMobile) {
+    const temp = document.createElement('div')
+    document.body.appendChild(temp)
+
+    vimeoPlayer = new Player(temp, {
+      id: videoId,
+      autoplay: true
+    })
+
+    await nextTick()
+
+    try {
+      await vimeoPlayer.requestFullscreen()
+    } catch {}
+
+    vimeoPlayer.on('fullscreenchange', (data) => {
+      if (!data.fullscreen) {
+        vimeoPlayer.destroy()
+        document.body.removeChild(temp)
+        vimeoPlayer = null
+      }
+    })
+
+    return
+  }
+
+  playerOpen.value = true
+  history.pushState({ modal: true }, '')
+  document.body.style.overflow = 'hidden'
+
+  await nextTick()
+
+  vimeoPlayer = new Player(vimeoContainer.value, {
+    id: videoId,
+    autoplay: true,
+    title: false,
+    byline: false,
+    portrait: false
   })
+}
 
+function closePlayer() {
+  if (vimeoPlayer) {
+    vimeoPlayer.destroy()
+    vimeoPlayer = null
+  }
 
-  const { isLight } = useTheme()
-  const themeClass = computed(() =>
-    isLight.value ? 'bg-white text-black' : 'bg-black text-white'
+  playerOpen.value = false
+  document.body.style.overflow = ''
+
+  if (history.state?.modal) history.back()
+}
+
+window.addEventListener('popstate', () => {
+  if (playerOpen.value) closePlayer()
+})
+
+onUnmounted(() => {
+  if (vimeoPlayer) vimeoPlayer.destroy()
+})
+
+/* HELPERS */
+
+function cleanText(value) {
+  if (!value) return ''
+  return String(value).replace(/\s+\n/g, '\n').trim()
+}
+
+const galleryImages = computed(() => {
+  if (!film.value?.gallery) return []
+  return film.value.gallery.map(img =>
+    typeof img === 'string' ? { url: img } : img
   )
+})
 
-  const { getBySlug } = useFilms()
-  const film = computed(() => getBySlug(props.slug))
-
-  /* ============================
-     LIGHTBOX
-  ============================ */
-  const lightboxOpen = ref(false)
-  const activeIndex = ref(0)
-
-  function openLightbox(i) {
-    activeIndex.value = i
-    lightboxOpen.value = true
+const tech = computed(() => {
+  const f = film.value
+  if (!f) return {}
+  return {
+    runtime: f.runtime || f.tech?.runtime,
+    year: f.releaseYear || f.year || f.tech?.year,
+    originalTitle: f.originalTitle || f.tech?.originalTitle,
+    genre: f.genreFull || f.genres || f.tech?.genre,
+    type: f.format || f.type || f.tech?.type,
+    language: f.language || f.tech?.language,
+    format: f.format
   }
+})
 
-  /* ============================
-     HELPERS
-  ============================ */
-  function cleanText(value) {
-    if (!value) return ''
-    return String(value).replace(/\s+\n/g, '\n').trim()
-  }
-
-  const galleryImages = computed(() => {
-    if (!film.value?.gallery) return []
-
-    return film.value.gallery.map(img =>
-      typeof img === 'string'
-        ? { url: img }
-        : img
-    )
-  })
-
-  const tech = computed(() => {
-    const f = film.value
-    if (!f) return {}
-
-    return {
-      runtime: f.runtime || f.tech?.runtime,
-      year: f.releaseYear || f.year || f.tech?.year,
-      originalTitle: f.originalTitle || f.tech?.originalTitle,
-      genre: f.genreFull || f.genres || f.tech?.genre,
-      type: f.format || f.type || f.tech?.type,
-      language: f.language || f.tech?.language,
-      format: f.format
-    }
-  })
-
-  const hasTech = computed(() => {
-    const t = tech.value
-    return !!(
-      t.runtime ||
-      t.year ||
-      t.originalTitle ||
-      t.genre ||
-      t.type ||
-      t.language ||
-      t.format
-    )
-  })
+const hasTech = computed(() => {
+  const t = tech.value
+  return !!(
+    t.runtime ||
+    t.year ||
+    t.originalTitle ||
+    t.genre ||
+    t.type ||
+    t.language ||
+    t.format
+  )
+})
 </script>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -1,74 +1,93 @@
-<!-- src/views/admin/AdminGalleries.vue -->
 <template>
   <section>
-    <!-- LIST -->
+    <Toast :toasts="toasts" :is-light="isLight" @dismiss="dismissToast" />
+
+    <ConfirmDialog
+      v-model="dialog.isOpen.value"
+      :title="dialog.title.value"
+      :message="dialog.message.value"
+      :confirm-text="dialog.confirmText.value"
+      :cancel-text="dialog.cancelText.value"
+      :destructive="dialog.destructive.value"
+      @confirm="dialog.confirm"
+      @cancel="dialog.cancel"
+    />
+
+    <!-- ================= LIST ================= -->
     <div v-if="mode === 'list'">
-      <div class="flex justify-between items-center mb-8">
-        <h2 class="text-2xl font-semibold">Galleries</h2>
-        <button class="px-4 py-2 border rounded" :class="btnClass" @click="createGallery">
-          + Add gallery
+      <div class="flex justify-between items-center mb-12">
+        <h2 class="text-2xl font-semibold tracking-tight">Galleries</h2>
+
+        <button
+          class="flex items-center gap-2 text-sm uppercase tracking-widest opacity-70 hover:opacity-100 transition"
+          @click="createGallery"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Add gallery</span>
         </button>
       </div>
 
-      <div class="border rounded divide-y">
-        <div
-          v-for="g in galleries"
-          :key="g.slug"
-          class="flex items-center justify-between px-4 py-3"
-        >
+      <div class="divide-y divide-current/10">
+        <div v-for="g in galleries" :key="g.slug" class="flex items-center justify-between py-6">
           <div>
-            <div class="font-semibold">{{ g.title }}</div>
-            <div class="text-sm opacity-60">/{{ g.slug }}</div>
+            <div class="font-medium">{{ g.title }}</div>
+            <div class="text-xs opacity-50 mt-1">/{{ g.slug }}</div>
           </div>
 
-          <div class="flex gap-4">
-            <button @click="editGallery(g.slug)">✏️</button>
-            <button @click="deleteGalleryConfirm(g.slug)">❌</button>
+          <div class="flex gap-8 items-center">
+            <button class="opacity-40 hover:opacity-100 transition" @click="editGallery(g.slug)" aria-label="Edit">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487a2.1 2.1 0 113 3L8.25 19.1l-4 1 1-4L16.862 4.487z" />
+              </svg>
+            </button>
+
+            <button class="text-xl leading-none opacity-30 hover:opacity-100 transition" @click="deleteGalleryConfirm(g.slug)" aria-label="Delete">
+              ×
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- EDITOR -->
+    <!-- ================= EDITOR ================= -->
     <div v-else class="max-w-3xl">
-      <button class="mb-6 opacity-70" @click="cancelEdit">
-        ← Back to list
+      <button class="mb-12 text-sm opacity-50 hover:opacity-100 transition" @click="cancelEdit">
+        ← Back
       </button>
 
-      <h2 class="text-2xl font-semibold mb-10">
+      <h2 class="text-2xl font-semibold mb-16 tracking-tight">
         {{ isNew ? 'Add gallery' : 'Edit gallery' }}
       </h2>
 
       <!-- BASIC -->
       <section class="section">
-        <h3 class="section-title">Basic information</h3>
+        <h3 class="section-title">Basic</h3>
 
         <label class="field">
           <span class="label">Title</span>
-          <input v-model="draft.title" class="input" :class="inputClass" />
+          <input v-model="draft.title" class="control" :class="inputClass" />
         </label>
 
         <label class="field">
           <span class="label">Slug</span>
           <input
             v-model="draft.slug"
-            class="input"
-            :class="[inputClass, !isNew ? 'cursor-not-allowed' : '']"
+            class="control"
+            :class="[inputClass, !isNew ? 'opacity-40 cursor-not-allowed' : '']"
             :disabled="!isNew"
           />
-          <p v-if="!isNew" class="text-xs opacity-50 mt-2">
-            Slug is locked after creation to keep URLs stable.
-          </p>
         </label>
 
         <label class="field">
           <span class="label">Tagline</span>
-          <input v-model="draft.tagline" class="input" :class="inputClass" />
+          <input v-model="draft.tagline" class="control" :class="inputClass" />
         </label>
 
         <label class="field">
           <span class="label">Description</span>
-          <textarea v-model="draft.description" class="input" :class="inputClass" />
+          <textarea v-model="draft.description" class="control textarea" :class="inputClass" />
         </label>
       </section>
 
@@ -76,32 +95,32 @@
       <section class="section">
         <h3 class="section-title">Metadata</h3>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-12">
           <label class="field">
             <span class="label">Year</span>
-            <input v-model="draft.year" class="input" :class="inputClass" />
+            <input v-model="draft.year" class="control" :class="inputClass" />
           </label>
 
           <label class="field">
             <span class="label">Location</span>
-            <input v-model="draft.location" class="input" :class="inputClass" />
+            <input v-model="draft.location" class="control" :class="inputClass" />
           </label>
         </div>
       </section>
 
       <!-- COVER -->
       <section class="section">
-        <h3 class="section-title">Cover image</h3>
+        <h3 class="section-title">Cover</h3>
 
-        <input type="file" accept="image/*" class="mb-4" @change="onCoverSelected" />
+        <label class="field">
+          <span class="label">Cover image file</span>
+          <input type="file" accept="image/*" class="file" @change="onCoverSelected" />
+        </label>
 
-        <div v-if="coverPreview" class="relative w-48">
-          <img :src="coverPreview" class="w-full aspect-square object-cover border rounded" />
-          <button
-            @click="removeCover"
-            class="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-1 rounded"
-          >
-            ✕
+        <div v-if="coverPreview" class="relative w-40 mt-2">
+          <img :src="coverPreview" class="w-full aspect-square object-cover" />
+          <button class="absolute top-2 right-2 text-xs opacity-60 hover:opacity-100" @click="removeCover" aria-label="Remove cover">
+            ×
           </button>
         </div>
       </section>
@@ -110,62 +129,49 @@
       <section class="section">
         <h3 class="section-title">Images</h3>
 
-        <input type="file" accept="image/*" multiple class="mb-4" @change="onFilesSelected" />
+        <label class="field">
+          <span class="label">Add images</span>
+          <input type="file" accept="image/*" multiple class="file" @change="onFilesSelected" />
+        </label>
 
-        <p class="text-xs opacity-60 mb-4">
-          Images upload when you save the gallery.
-        </p>
+        <div ref="galleryEl" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2">
+          <div v-for="(img, i) in displayedImages" :key="img.url + i" class="relative" :class="img.pending ? 'opacity-40' : 'cursor-move'">
+            <img :src="img.url" class="w-full aspect-square object-cover" />
 
-        <!-- keeps layout from feeling "jumpy" when empty -->
-        <div class="min-h-[120px]">
-          <div ref="galleryEl" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <div
-              v-for="(img, i) in displayedImages"
-              :key="img.url + i"
-              class="border rounded overflow-hidden relative"
-              :class="img.pending ? 'opacity-60' : 'cursor-move'"
-            >
-              <img :src="img.url" class="w-full aspect-square object-cover bg-black/5" />
-
-              <button
-                @click="removeImage(i, img)"
-                class="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-1 rounded"
-              >
-                ✕
-              </button>
-
-              <div class="px-2 py-1 text-xs truncate">
-                {{ img.pending ? 'Pending…' : img.url.split('/').pop() }}
-              </div>
-            </div>
+            <button class="absolute top-2 right-2 text-xs opacity-50 hover:opacity-100" @click="removeImage(i, img)" aria-label="Remove image">
+              ×
+            </button>
           </div>
         </div>
       </section>
 
-      <div class="mt-10">
-        <button class="px-6 py-3 border rounded" :class="btnClass" @click="save">
-          Save gallery
-        </button>
-      </div>
+      <!-- SAVE -->
+      <button class="mt-16 text-sm uppercase tracking-widest opacity-60 hover:opacity-100 transition" @click="save">
+        Save gallery
+      </button>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import Sortable from 'sortablejs'
 import { useTheme } from '@/composables/useTheme'
 import { useGalleries } from '@/composables/useGalleries'
+import { useDialog } from '@/composables/useDialog'
+import { useToast } from '@/composables/useToast'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import Toast from '@/components/ui/Toast.vue'
 
 const { isLight } = useTheme()
 const { galleries, addGallery, updateGallery, removeGallery, init } = useGalleries()
 onMounted(init)
 
-const btnClass = computed(() => (isLight.value ? 'border-black' : 'border-white'))
+const dialog = useDialog()
+const { toasts, toast, dismiss: dismissToast } = useToast()
+
 const inputClass = computed(() =>
-  isLight.value
-    ? 'bg-white text-black border border-black/30'
-    : 'bg-black text-white border border-white/30'
+  isLight.value ? 'border-black/20 focus:border-black text-black' : 'border-white/20 focus:border-white text-white'
 )
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
@@ -176,8 +182,7 @@ const isNew = ref(false)
 const draft = ref({})
 const originalSlug = ref(null)
 
-/* ---------------- SLUG ---------------- */
-
+/* SLUG */
 function slugify(input) {
   return String(input || '')
     .trim()
@@ -187,17 +192,13 @@ function slugify(input) {
     .replace(/^-+|-+$/g, '')
 }
 
-watch(
-  () => draft.value.title,
-  title => {
-    if (isNew.value) draft.value.slug = slugify(title)
-  }
-)
+watch(() => draft.value.title, (title) => {
+  if (isNew.value) draft.value.slug = slugify(title)
+})
 
-/* ---------------- STAGED UPLOAD ---------------- */
-
-const pendingImages = ref([]) // { file, previewUrl }
-const pendingCover = ref(null) // { file, previewUrl }
+/* STAGED */
+const pendingImages = ref([])
+const pendingCover = ref(null)
 
 const coverPreview = computed(() =>
   pendingCover.value ? pendingCover.value.previewUrl : draft.value.coverImage
@@ -215,8 +216,7 @@ function cleanupPending() {
   pendingCover.value = null
 }
 
-/* ---------------- CRUD ---------------- */
-
+/* CRUD */
 function createGallery() {
   cleanupPending()
   draft.value = {
@@ -250,12 +250,27 @@ function cancelEdit() {
   mode.value = 'list'
 }
 
-function deleteGalleryConfirm(slug) {
-  if (confirm('Delete gallery?')) removeGallery(slug)
+/* DELETE CONFIRM */
+async function deleteGalleryConfirm(slug) {
+  const ok = await dialog.openConfirm({
+    title: 'Delete gallery?',
+    message: 'This action cannot be undone.',
+    confirmText: 'Delete',
+    cancelText: 'Cancel',
+    destructive: true
+  })
+
+  if (!ok) return
+
+  try {
+    await removeGallery(slug)
+    toast('Deleted')
+  } catch {
+    toast('Delete failed', { duration: 2400 })
+  }
 }
 
-/* ---------------- UPLOAD ---------------- */
-
+/* UPLOAD */
 async function uploadFile(file) {
   const form = new FormData()
   form.append('file', file)
@@ -273,8 +288,7 @@ async function uploadFile(file) {
   return { url: data.url, exif: data.exif || null }
 }
 
-/* ---------------- FILE SELECT ---------------- */
-
+/* FILE SELECT */
 function onFilesSelected(e) {
   for (const file of Array.from(e.target.files || [])) {
     pendingImages.value.push({ file, previewUrl: URL.createObjectURL(file) })
@@ -291,8 +305,7 @@ function onCoverSelected(e) {
   e.target.value = ''
 }
 
-/* ---------------- DELETE ---------------- */
-
+/* DELETE IMAGE */
 async function removeImage(index, img) {
   if (img.pending) {
     const pendingIndex = index - (draft.value.images?.length || 0)
@@ -305,10 +318,7 @@ async function removeImage(index, img) {
 
   await fetch(`${API_BASE}/media`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${ADMIN_TOKEN}`
-    },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ADMIN_TOKEN}` },
     body: JSON.stringify({ url: img.url })
   })
 
@@ -324,41 +334,38 @@ function removeCover() {
   draft.value.coverImage = null
 }
 
-/* ---------------- SAVE ---------------- */
-
+/* SAVE */
 async function save() {
-  if (!draft.value.slug) {
-    alert('Slug is required')
-    return
+  try {
+    if (!draft.value.slug) {
+      toast('Slug is required', { duration: 2400 })
+      return
+    }
+
+    if (pendingCover.value) {
+      const uploaded = await uploadFile(pendingCover.value.file)
+      draft.value.coverImage = uploaded.url
+    }
+
+    if (pendingImages.value.length) {
+      const uploaded = []
+      for (const p of pendingImages.value) uploaded.push(await uploadFile(p.file))
+      draft.value.images.push(...uploaded)
+    }
+
+    cleanupPending()
+
+    if (isNew.value) await addGallery(draft.value)
+    else await updateGallery(originalSlug.value, draft.value)
+
+    toast('Saved')
+    mode.value = 'list'
+  } catch {
+    toast('Save failed', { duration: 2400 })
   }
-
-  // cover first
-  if (pendingCover.value) {
-    const uploaded = await uploadFile(pendingCover.value.file)
-    draft.value.coverImage = uploaded.url
-  }
-
-  // then images
-  if (pendingImages.value.length) {
-    const uploaded = []
-    for (const p of pendingImages.value) uploaded.push(await uploadFile(p.file))
-    draft.value.images.push(...uploaded)
-  }
-
-  cleanupPending()
-
-  if (isNew.value) {
-    await addGallery(draft.value)
-  } else {
-    // IMPORTANT: update by original slug
-    await updateGallery(originalSlug.value, draft.value)
-  }
-
-  mode.value = 'list'
 }
 
-/* ---------------- SORTABLE ---------------- */
-
+/* SORTABLE */
 const galleryEl = ref(null)
 let sortable = null
 
@@ -366,13 +373,12 @@ function initSortable() {
   if (!galleryEl.value) return
   if (sortable) sortable.destroy()
 
-  // Prevent dragging pending items (they are appended after saved ones)
   sortable = Sortable.create(galleryEl.value, {
     animation: 150,
-    filter: '.opacity-60',
+    filter: '.opacity-40',
     onMove(evt) {
-      if (evt.dragged?.classList?.contains('opacity-60')) return false
-      if (evt.related?.classList?.contains('opacity-60')) return false
+      if (evt.dragged?.classList?.contains('opacity-40')) return false
+      if (evt.related?.classList?.contains('opacity-40')) return false
       return true
     },
     onEnd(evt) {
@@ -386,42 +392,69 @@ function initSortable() {
 }
 
 watch(() => mode.value, v => v === 'edit' && setTimeout(initSortable))
+
+/* KEYBOARD */
+function onKeydown(e) {
+  const inEdit = mode.value === 'edit'
+  const metaSave = (e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'S')
+
+  if (inEdit && metaSave) {
+    e.preventDefault()
+    save()
+    return
+  }
+
+  if (inEdit && e.key === 'Escape' && !dialog.isOpen.value) {
+    e.preventDefault()
+    cancelEdit()
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <style scoped>
 .section {
-  margin-bottom: 3rem;
-  min-height: 1px;
+  margin-bottom: 4rem;
 }
+
 .section-title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 2rem;
 }
+
 .field {
   display: block;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
+
 .label {
   display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  opacity: 0.7;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 0.75rem;
 }
-.input {
+
+.control {
   width: 100%;
-  padding: 0.6rem;
-  border-radius: 4px;
+  padding: 0.25rem 0 0.6rem;
+  background: transparent;
+  border-bottom-width: 1px;
+  outline: none;
 }
-textarea.input {
+
+.textarea {
   min-height: 120px;
   resize: vertical;
 }
 
-/* Make disabled inputs look consistent (no ugly grey) */
-input:disabled,
-textarea:disabled {
-  opacity: 1;
+.file {
+  opacity: 0.7;
 }
 </style>
