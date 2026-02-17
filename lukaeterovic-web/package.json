@@ -13,6 +13,9 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@vimeo/player": "^2.30.2",
+    "install": "^0.13.0",
+    "npm": "^11.10.0",
     "sortablejs": "^1.15.6",
     "swiper": "^12.1.1",
     "vue": "^3.5.27",

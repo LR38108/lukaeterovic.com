@@ -1,66 +1,112 @@
-<!-- src/views/admin/AdminMusicVideos.vue -->
 <template>
   <section>
-    <!-- LIST -->
+    <Toast :toasts="toasts" :is-light="isLight" @dismiss="dismissToast" />
+
+    <ConfirmDialog
+      v-model="dialog.isOpen.value"
+      :title="dialog.title.value"
+      :message="dialog.message.value"
+      :confirm-text="dialog.confirmText.value"
+      :cancel-text="dialog.cancelText.value"
+      :destructive="dialog.destructive.value"
+      @confirm="dialog.confirm"
+      @cancel="dialog.cancel"
+    />
+
+    <!-- ================= LIST ================= -->
     <div v-if="mode === 'list'">
-      <div class="flex justify-between items-center mb-8">
-        <h2 class="text-2xl font-semibold">Music Videos</h2>
-        <button class="px-4 py-2 border rounded" :class="btnClass" @click="createVideo">
-          + Add music video
+      <div class="flex justify-between items-center mb-12">
+        <h2 class="text-2xl font-semibold tracking-tight">Music Videos</h2>
+
+        <button
+          class="flex items-center gap-2 text-sm uppercase tracking-widest opacity-70 hover:opacity-100 transition"
+          @click="createVideo"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Add music video</span>
         </button>
       </div>
 
-      <div class="border rounded divide-y">
+      <div class="divide-y divide-current/10">
         <div
           v-for="v in musicVideos"
           :key="v.slug"
-          class="flex items-center justify-between px-4 py-3"
+          class="flex items-center justify-between py-6"
         >
           <div>
-            <div class="font-semibold">{{ v.artist }} — {{ v.title }}</div>
-            <div class="text-sm opacity-60">/{{ v.slug }}</div>
+            <div class="font-medium">
+              {{ v.artist }} — {{ v.title }}
+            </div>
+            <div class="text-xs opacity-50 mt-1">
+              /{{ v.slug }}
+            </div>
           </div>
 
-          <div class="flex gap-4">
-            <button @click="editVideo(v.slug)">✏️</button>
-            <button @click="deleteVideoConfirm(v.slug)">❌</button>
+          <div class="flex gap-8 items-center">
+            <button
+              class="opacity-40 hover:opacity-100 transition"
+              @click="editVideo(v.slug)"
+              aria-label="Edit"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487a2.1 2.1 0 113 3L8.25 19.1l-4 1 1-4L16.862 4.487z" />
+              </svg>
+            </button>
+
+            <button
+              class="text-xl leading-none opacity-30 hover:opacity-100 transition"
+              @click="deleteVideoConfirm(v.slug)"
+              aria-label="Delete"
+            >
+              ×
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- EDITOR -->
+    <!-- ================= EDITOR ================= -->
     <div v-else class="max-w-3xl">
-      <button class="mb-6 opacity-70" @click="cancelEdit">
-        ← Back to list
+      <button
+        class="mb-12 text-sm opacity-50 hover:opacity-100 transition"
+        @click="cancelEdit"
+      >
+        ← Back
       </button>
 
-      <h2 class="text-2xl font-semibold mb-10">
+      <h2 class="text-2xl font-semibold mb-16 tracking-tight">
         {{ isNew ? 'Add music video' : 'Edit music video' }}
       </h2>
 
       <!-- BASIC -->
       <section class="section">
-        <h3 class="section-title">Basic information</h3>
+        <h3 class="section-title">Basic</h3>
 
         <label class="field">
           <span class="label">Artist</span>
-          <input v-model="draft.artist" class="input" :class="inputClass" />
+          <input v-model="draft.artist" class="control" :class="inputClass" />
         </label>
 
         <label class="field">
           <span class="label">Title</span>
-          <input v-model="draft.title" class="input" :class="inputClass" />
+          <input v-model="draft.title" class="control" :class="inputClass" />
         </label>
 
         <label class="field">
           <span class="label">Slug</span>
-          <input v-model="draft.slug" class="input" :class="inputClass" :disabled="!isNew" />
+          <input
+            v-model="draft.slug"
+            class="control"
+            :class="[inputClass, !isNew ? 'opacity-40 cursor-not-allowed' : '']"
+            :disabled="!isNew"
+          />
         </label>
 
         <label class="field">
           <span class="label">Year</span>
-          <input v-model="draft.year" class="input" :class="inputClass" />
+          <input v-model="draft.year" class="control" :class="inputClass" />
         </label>
       </section>
 
@@ -70,28 +116,53 @@
 
         <label class="field">
           <span class="label">YouTube URL</span>
-          <input v-model="draft.videoUrl" class="input" :class="inputClass" />
+          <input v-model="draft.videoUrl" class="control" :class="inputClass" />
         </label>
       </section>
 
       <!-- DESCRIPTION -->
       <section class="section">
         <h3 class="section-title">Description</h3>
-        <textarea v-model="draft.description" class="input" :class="inputClass" />
+
+        <label class="field">
+          <span class="label">Text</span>
+          <textarea v-model="draft.description" class="control textarea" :class="inputClass" />
+        </label>
       </section>
 
       <!-- CREDITS -->
       <section class="section">
         <h3 class="section-title">Credits</h3>
 
-        <div v-for="(c, i) in draft.credits" :key="i" class="flex gap-3 mb-3">
-          <input v-model="c.role" class="input" :class="inputClass" placeholder="Role" />
-          <input v-model="c.name" class="input" :class="inputClass" placeholder="Name" />
-          <button @click="draft.credits.splice(i, 1)">❌</button>
+        <div
+          v-for="(c, i) in draft.credits"
+          :key="i"
+          class="credit-row"
+        >
+          <label class="field compact">
+            <span class="label">Role</span>
+            <input v-model="c.role" class="control" :class="inputClass" />
+          </label>
+
+          <label class="field compact">
+            <span class="label">Name</span>
+            <input v-model="c.name" class="control" :class="inputClass" />
+          </label>
+
+          <button
+            class="text-xl leading-none opacity-30 hover:opacity-100 transition"
+            @click="draft.credits.splice(i, 1)"
+            aria-label="Remove credit"
+          >
+            ×
+          </button>
         </div>
 
-        <button @click="draft.credits.push({ role: '', name: '' })">
-          + Add credit
+        <button
+          class="mt-4 text-sm uppercase tracking-widest opacity-60 hover:opacity-100 transition"
+          @click="draft.credits.push({ role: '', name: '' })"
+        >
+          Add credit
         </button>
       </section>
 
@@ -99,15 +170,20 @@
       <section class="section">
         <h3 class="section-title">Thumbnail</h3>
 
-        <input type="file" accept="image/*" @change="onThumbnailSelected" />
+        <label class="field">
+          <span class="label">Thumbnail file</span>
+          <input type="file" accept="image/*" class="file" @change="onThumbnailSelected" />
+        </label>
 
-        <div v-if="thumbnailPreview" class="mt-4 relative w-64">
-          <img :src="thumbnailPreview" class="rounded" />
+        <div v-if="thumbnailPreview" class="relative w-56 mt-2">
+          <img :src="thumbnailPreview" class="w-full object-cover" />
+
           <button
-            class="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-1 rounded"
+            class="absolute top-2 right-2 text-xs opacity-60 hover:opacity-100"
             @click="removeThumbnail"
+            aria-label="Remove thumbnail"
           >
-            ✕
+            ×
           </button>
         </div>
       </section>
@@ -116,47 +192,54 @@
       <section class="section">
         <h3 class="section-title">Stills</h3>
 
-        <input type="file" accept="image/*" multiple @change="onStillsSelected" />
-
-        <p class="text-xs opacity-60 mt-2 mb-4">
-          Images upload when you save the music video.
-        </p>
+        <label class="field">
+          <span class="label">Add stills</span>
+          <input type="file" accept="image/*" multiple class="file" @change="onStillsSelected" />
+        </label>
 
         <div
           ref="galleryEl"
-          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+          class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-2"
         >
           <div
             v-for="(img, i) in displayedGallery"
             :key="img.url + i"
-            class="relative cursor-move"
-            :class="img.pending ? 'opacity-60' : ''"
+            class="relative"
+            :class="img.pending ? 'opacity-40' : 'cursor-move'"
           >
-            <img :src="img.url" class="rounded" />
+            <img :src="img.url" class="w-full aspect-square object-cover" />
+
             <button
-              class="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-1 rounded"
+              class="absolute top-2 right-2 text-xs opacity-50 hover:opacity-100"
               @click="removeImage(i, img)"
+              aria-label="Remove still"
             >
-              ✕
+              ×
             </button>
           </div>
         </div>
       </section>
 
-      <div class="mt-10">
-        <button class="px-6 py-3 border rounded" :class="btnClass" @click="save">
-          Save music video
-        </button>
-      </div>
+      <!-- SAVE -->
+      <button
+        class="mt-16 text-sm uppercase tracking-widest opacity-60 hover:opacity-100 transition"
+        @click="save"
+      >
+        Save music video
+      </button>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import Sortable from 'sortablejs'
 import { useTheme } from '@/composables/useTheme'
 import { useMusicVideos } from '@/composables/useMusicVideos'
+import { useDialog } from '@/composables/useDialog'
+import { useToast } from '@/composables/useToast'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import Toast from '@/components/ui/Toast.vue'
 
 const { isLight } = useTheme()
 const { musicVideos, addMusicVideo, updateMusicVideo, removeMusicVideo, init } =
@@ -164,11 +247,13 @@ const { musicVideos, addMusicVideo, updateMusicVideo, removeMusicVideo, init } =
 
 init()
 
-const btnClass = computed(() => (isLight.value ? 'border-black' : 'border-white'))
+const dialog = useDialog()
+const { toasts, toast, dismiss: dismissToast } = useToast()
+
 const inputClass = computed(() =>
   isLight.value
-    ? 'bg-white text-black border border-black/30'
-    : 'bg-black text-white border border-white/30'
+    ? 'border-black/20 focus:border-black text-black'
+    : 'border-white/20 focus:border-white text-white'
 )
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL
@@ -178,10 +263,10 @@ const mode = ref('list')
 const isNew = ref(false)
 const draft = ref({})
 
-/* ---------------- STAGED STATE ---------------- */
+/* ---------------- STAGED ---------------- */
 
-const pendingThumbnail = ref(null) // { file, previewUrl }
-const pendingStills = ref([]) // [{ file, previewUrl }]
+const pendingThumbnail = ref(null)
+const pendingStills = ref([])
 
 const thumbnailPreview = computed(() =>
   pendingThumbnail.value
@@ -195,8 +280,13 @@ const displayedGallery = computed(() => [
 ])
 
 function cleanupPending() {
-  if (pendingThumbnail.value) URL.revokeObjectURL(pendingThumbnail.value.previewUrl)
-  pendingStills.value.forEach(p => URL.revokeObjectURL(p.previewUrl))
+  if (pendingThumbnail.value)
+    URL.revokeObjectURL(pendingThumbnail.value.previewUrl)
+
+  pendingStills.value.forEach(p =>
+    URL.revokeObjectURL(p.previewUrl)
+  )
+
   pendingThumbnail.value = null
   pendingStills.value = []
 }
@@ -204,6 +294,8 @@ function cleanupPending() {
 /* ---------------- CRUD ---------------- */
 
 function createVideo() {
+  cleanupPending()
+
   draft.value = {
     artist: '',
     title: '',
@@ -215,12 +307,16 @@ function createVideo() {
     gallery: [],
     credits: []
   }
+
   isNew.value = true
   mode.value = 'edit'
 }
 
 function editVideo(slug) {
+  cleanupPending()
+
   const v = musicVideos.value.find(v => v.slug === slug)
+  if (!v) return
 
   draft.value = {
     ...JSON.parse(JSON.stringify(v)),
@@ -238,8 +334,25 @@ function cancelEdit() {
   mode.value = 'list'
 }
 
-function deleteVideoConfirm(slug) {
-  if (confirm('Delete music video?')) removeMusicVideo(slug)
+/* ---------------- DELETE CONFIRM ---------------- */
+
+async function deleteVideoConfirm(slug) {
+  const ok = await dialog.openConfirm({
+    title: 'Delete music video?',
+    message: 'This action cannot be undone.',
+    confirmText: 'Delete',
+    cancelText: 'Cancel',
+    destructive: true
+  })
+
+  if (!ok) return
+
+  try {
+    await removeMusicVideo(slug)
+    toast('Deleted')
+  } catch {
+    toast('Delete failed', { duration: 2400 })
+  }
 }
 
 /* ---------------- UPLOAD ---------------- */
@@ -257,6 +370,7 @@ async function uploadFile(file) {
   })
 
   if (!res.ok) throw new Error('Upload failed')
+
   const data = await res.json()
   return data.url
 }
@@ -264,7 +378,7 @@ async function uploadFile(file) {
 /* ---------------- FILE SELECT ---------------- */
 
 function onThumbnailSelected(e) {
-  const file = e.target.files[0]
+  const file = e.target.files?.[0]
   if (!file) return
 
   if (pendingThumbnail.value)
@@ -274,11 +388,12 @@ function onThumbnailSelected(e) {
     file,
     previewUrl: URL.createObjectURL(file)
   }
+
   e.target.value = ''
 }
 
 function onStillsSelected(e) {
-  for (const file of Array.from(e.target.files)) {
+  for (const file of Array.from(e.target.files || [])) {
     pendingStills.value.push({
       file,
       previewUrl: URL.createObjectURL(file)
@@ -287,7 +402,7 @@ function onStillsSelected(e) {
   e.target.value = ''
 }
 
-/* ---------------- DELETE ---------------- */
+/* ---------------- DELETE IMAGE ---------------- */
 
 async function removeImage(index, img) {
   if (img.pending) {
@@ -318,34 +433,39 @@ function removeThumbnail() {
 /* ---------------- SAVE ---------------- */
 
 async function save() {
-  if (pendingThumbnail.value) {
-    draft.value.thumbnail = await uploadFile(pendingThumbnail.value.file)
-  }
-
-  if (pendingStills.value.length) {
-    for (const p of pendingStills.value) {
-      draft.value.gallery.push(await uploadFile(p.file))
+  try {
+    if (pendingThumbnail.value) {
+      draft.value.thumbnail = await uploadFile(pendingThumbnail.value.file)
     }
+
+    if (pendingStills.value.length) {
+      for (const p of pendingStills.value) {
+        draft.value.gallery.push(await uploadFile(p.file))
+      }
+    }
+
+    cleanupPending()
+
+    const payload = {
+      artist: draft.value.artist,
+      title: draft.value.title,
+      slug: draft.value.slug,
+      year: draft.value.year,
+      video_url: draft.value.videoUrl,
+      description: draft.value.description,
+      thumbnail: draft.value.thumbnail,
+      credits: draft.value.credits,
+      gallery: draft.value.gallery
+    }
+
+    if (isNew.value) await addMusicVideo(payload)
+    else await updateMusicVideo(draft.value.slug, payload)
+
+    toast('Saved')
+    mode.value = 'list'
+  } catch {
+    toast('Save failed', { duration: 2400 })
   }
-
-  cleanupPending()
-
-  const payload = {
-    artist: draft.value.artist,
-    title: draft.value.title,
-    slug: draft.value.slug,
-    year: draft.value.year,
-    video_url: draft.value.videoUrl,
-    description: draft.value.description,
-    thumbnail: draft.value.thumbnail,
-    credits: draft.value.credits,
-    gallery: draft.value.gallery
-  }
-
-  if (isNew.value) await addMusicVideo(payload)
-  else await updateMusicVideo(draft.value.slug, payload)
-
-  mode.value = 'list'
 }
 
 /* ---------------- SORTABLE ---------------- */
@@ -357,8 +477,14 @@ watch(() => mode.value, v => {
   if (v === 'edit') {
     setTimeout(() => {
       if (sortable) sortable.destroy()
+
       sortable = Sortable.create(galleryEl.value, {
         animation: 150,
+        filter: '.opacity-40',
+        onMove(evt) {
+          if (evt.dragged?.classList?.contains('opacity-40')) return false
+          return true
+        },
         onEnd(evt) {
           const moved = draft.value.gallery.splice(evt.oldIndex, 1)[0]
           draft.value.gallery.splice(evt.newIndex, 0, moved)
@@ -367,33 +493,83 @@ watch(() => mode.value, v => {
     })
   }
 })
+
+/* ---------------- KEYBOARD ---------------- */
+
+function onKeydown(e) {
+  const inEdit = mode.value === 'edit'
+  const metaSave =
+    (e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'S')
+
+  if (inEdit && metaSave) {
+    e.preventDefault()
+    save()
+    return
+  }
+
+  if (inEdit && e.key === 'Escape' && !dialog.isOpen.value) {
+    e.preventDefault()
+    cancelEdit()
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <style scoped>
 .section {
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
+
 .section-title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  margin-bottom: 1.25rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 2rem;
 }
+
 .field {
-  margin-bottom: 1.5rem;
+  display: block;
+  margin-bottom: 2rem;
 }
+
+.field.compact {
+  margin-bottom: 0;
+}
+
 .label {
   display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 0.75rem;
+}
+
+.control {
+  width: 100%;
+  padding: 0.25rem 0 0.6rem;
+  background: transparent;
+  border-bottom-width: 1px;
+  outline: none;
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.file {
   opacity: 0.7;
 }
-.input {
-  width: 100%;
-  padding: 0.6rem;
-  border-radius: 4px;
-}
-textarea.input {
-  min-height: 120px;
+
+.credit-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1.25rem;
+  align-items: end;
+  margin-bottom: 1.25rem;
 }
 </style>
