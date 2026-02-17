@@ -33,8 +33,11 @@
     </div>
 
     <!-- LIGHTBOX -->
-    <Lightbox v-if="lightboxOpen" :images="normalizedGallery" :startIndex="lightboxIndex"
-      @close="lightboxOpen = false" />
+    <CustomLightbox
+      v-model="lightboxOpen"
+      :images="normalizedGallery"
+      :initial-index="lightboxIndex"
+    />
 
   </section>
 
@@ -47,7 +50,7 @@
   import { computed, onMounted, ref } from 'vue'
   import { useRoute } from 'vue-router'
   import { useMusicVideos } from '@/composables/useMusicVideos'
-  import Lightbox from '@/components/Lightbox.vue'
+  import CustomLightbox from '@/components/CustomLightbox.vue'
 
   const route = useRoute()
   const { musicVideos, init } = useMusicVideos()

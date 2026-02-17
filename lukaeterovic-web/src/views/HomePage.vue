@@ -5,7 +5,7 @@
 
     <!-- FULL-BLEED HORIZONTALLY + FORCE BACKGROUND -->
     <section
-      class="py-10 sm:py-14 lg:py-20"
+      class="py-8 sm:py-12 lg:py-18"
       :class="isLight ? 'bg-white' : 'bg-black'"
     >
       <div class="w-full">

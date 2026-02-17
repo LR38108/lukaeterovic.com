@@ -1,20 +1,48 @@
 <template>
   <article v-if="post" class="min-h-screen pt-24 pb-32">
-    <div class="max-w-3xl mx-auto px-4">
 
-      <header class="mb-12">
-        <h1 class="text-4xl font-bold mb-4">{{ post.title }}</h1>
+    <!-- HERO IMAGE -->
+    <div
+      v-if="post.cover_image"
+      class="w-full mb-16"
+    >
+      <div class="max-w-5xl mx-auto px-4">
+        <img
+          :src="post.cover_image"
+          :alt="post.title"
+          class="w-full max-h-[70vh] object-cover rounded"
+          loading="lazy"
+        />
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="max-w-3xl mx-auto px-4">
+      <header class="mb-12 text-center">
+        <h1 class="text-4xl font-bold mb-4">
+          {{ post.title }}
+        </h1>
+
         <div class="text-sm opacity-50">
           {{ new Date(post.created_at).toDateString() }}
         </div>
       </header>
 
       <div
-        class="prose prose-neutral max-w-none"
+        class="w-full max-h-[60vh] md:max-h-[70vh] object-cover rounded"
+
         v-html="post.content"
       />
     </div>
+
   </article>
+
+  <div
+    v-else
+    class="min-h-screen flex items-center justify-center opacity-60"
+  >
+    Loading…
+  </div>
 </template>
 
 <script setup>

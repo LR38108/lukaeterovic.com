@@ -210,11 +210,15 @@ function createPost() {
 }
 
 function editPost(slug) {
-  const post = posts.value.find(p => p.slug === slug)
+  const p = posts.value.find(p => p.slug === slug)
+  if (!p) return
 
-  draft.value = JSON.parse(JSON.stringify(post))
-  originalSlug.value = post.slug
+  draft.value = {
+    ...JSON.parse(JSON.stringify(p)),
+    published: Boolean(p.published)
+  }
 
+  originalSlug.value = p.slug   // ✅ keep separately
   slugTouched.value = true
   isNew.value = false
   mode.value = 'edit'
@@ -298,7 +302,10 @@ async function save() {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${ADMIN_TOKEN}`
     },
-    body: JSON.stringify(draft.value)
+    body: JSON.stringify({
+      ...draft.value,
+      published: draft.value.published ? 1 : 0
+    })
   })
 
   await fetchPosts()

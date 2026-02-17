@@ -8,8 +8,15 @@ import AdminPage from '@/views/AdminPage.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: HomePage },
-  { path: '/film', name: 'Film', component: FilmPage },
-  { path: '/film/:slug', name: 'FilmDetail', component: FilmDetailPage, props: true },
+  {
+    path: '/film',
+    component: () => import('@/views/FilmPage.vue')
+  },
+  {
+    path: '/film/:slug',
+    component: () => import('@/views/FilmDetailPage.vue'),
+    props: true
+  },
   {
     path: '/photography',
     component: () => import('@/views/GalleriesPage.vue')
