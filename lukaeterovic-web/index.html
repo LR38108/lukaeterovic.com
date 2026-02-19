@@ -1,13 +1,63 @@
 <!DOCTYPE html>
 <html lang="">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Luka Eterovic</title>
+
+    <style>
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: black;
+        z-index: 9999;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      #initial-loader img {
+        width: 120px;
+        opacity: 0.85;
+      }
+
+      .loader-line {
+        width: 80px;
+        height: 1px;
+        background: white;
+        opacity: 0.4;
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scaleX(0.4);
+          opacity: 0.2;
+        }
+        50% {
+          transform: scaleX(1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scaleX(0.4);
+          opacity: 0.2;
+        }
+      }
+    </style>
   </head>
+
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div id="initial-loader">
+        <!-- IMPORTANT: use public path style -->
+        <img src="/assets/logos/logo_white.svg" alt="Logo" />
+        <div class="loader-line"></div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
