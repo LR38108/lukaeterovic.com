@@ -1,10 +1,12 @@
 <template>
   <section class="hero relative w-full h-screen overflow-hidden">
     <video
+      v-if="videoReady"
       autoplay
       muted
       loop
       playsinline
+      preload="none"
       class="absolute inset-0 w-full h-full object-cover z-0"
     >
       <source src="/assets/videos/sample-30s.mp4" type="video/mp4" />
@@ -22,3 +24,17 @@
     </div>
   </section>
 </template>
+<script setup>
+import { ref, onMounted } from 'vue'
+
+const videoReady = ref(false)
+
+onMounted(() => {
+  // Wait until main thread is free
+  requestIdleCallback?.(() => {
+    videoReady.value = true
+  }) || setTimeout(() => {
+    videoReady.value = true
+  }, 1500)
+})
+</script>
