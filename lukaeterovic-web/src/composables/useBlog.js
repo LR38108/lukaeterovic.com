@@ -1,7 +1,7 @@
 // src/composables/useBlog.js
 import { ref, computed } from 'vue'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://lukaeterovic-api.radan-luka.workers.dev'
 
 const postsRef = ref([])
 const loading = ref(false)

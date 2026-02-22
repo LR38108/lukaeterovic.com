@@ -2,11 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Font */
+/* Custom Fonts */
 @font-face {
   font-family: 'EB Garamond';
   src: url('/assets/fonts/EBGaramond-Regular.woff2') format('woff2');
   font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('/assets/fonts/EBGaramond-Italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'U001';
+  src: url('/assets/fonts/u001-reg.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'U001';
+  src: url('/assets/fonts/u001-bol.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'U001 Condensed';
+  src: url('/assets/fonts/u001con-bol.woff') format('woff');
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }

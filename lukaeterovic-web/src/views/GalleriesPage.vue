@@ -4,11 +4,11 @@
     <div class="max-w-7xl mx-auto px-4">
 
       <!-- HEADER -->
-      <header class="mb-16">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">
-          Photography
+      <header class="mb-16 md:mb-20">
+        <h1 class="galleries-page-title text-[2.25rem] md:text-[2.7rem] font-bold uppercase mb-4">
+          PHOTOGRAPHY
         </h1>
-        <p class="max-w-xl text-lg opacity-70">
+        <p class="galleries-page-intro text-base md:text-lg opacity-70 max-w-2xl leading-relaxed">
           Curated photographic works — places, moments, and visual essays.
         </p>
       </header>
@@ -23,10 +23,10 @@
         No galleries yet.
       </div>
 
-      <!-- GRID -->
+      <!-- GRID: 1 col mobile, 2 cols on desktop -->
       <div
         v-else
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10"
+        class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12"
       >
         <RouterLink
           v-for="g in galleries"
@@ -36,7 +36,7 @@
         >
           <!-- IMAGE -->
           <div
-            class="relative aspect-[4/5] overflow-hidden rounded-lg bg-black/5"
+            class="relative aspect-[4/5] overflow-hidden bg-black/5"
           >
             <img
               v-if="g.coverImage"
@@ -86,3 +86,15 @@ const { galleries, loading, init } = useGalleries()
 
 onMounted(init)
 </script>
+
+<style scoped>
+.galleries-page-title {
+  font-family: 'U001 Condensed', sans-serif;
+  font-weight: 700;
+}
+
+.galleries-page-intro {
+  font-family: 'U001', sans-serif;
+  font-weight: 400;
+}
+</style>
