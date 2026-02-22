@@ -19,18 +19,21 @@
     <!-- CONTENT -->
     <div class="max-w-3xl mx-auto px-4">
       <header class="mb-12 text-center">
-        <h1 class="text-4xl font-bold mb-4">
+        <h1 class="blog-detail-title text-4xl font-bold mb-4">
           {{ post.title }}
         </h1>
 
-        <div class="text-sm opacity-50">
+        <div class="blog-detail-date text-sm opacity-50">
           {{ new Date(post.created_at).toDateString() }}
         </div>
       </header>
 
+      <p v-if="post.excerpt" class="blog-detail-excerpt text-lg opacity-80 mb-12">
+        {{ post.excerpt }}
+      </p>
+
       <div
         class="w-full max-h-[60vh] md:max-h-[70vh] object-cover rounded"
-
         v-html="post.content"
       />
     </div>
@@ -54,8 +57,25 @@ const post = ref(null)
 
 onMounted(async () => {
   const res = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL}/blog/${route.params.slug}`
+    `${import.meta.env.VITE_API_BASE_URL || 'https://lukaeterovic-api.radan-luka.workers.dev'}/blog/${route.params.slug}`
   )
   if (res.ok) post.value = await res.json()
 })
 </script>
+
+<style scoped>
+.blog-detail-date {
+  font-family: 'U001', sans-serif;
+  font-weight: 700;
+}
+
+.blog-detail-title {
+  font-family: 'U001 Condensed', sans-serif;
+  font-weight: 700;
+}
+
+.blog-detail-excerpt {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+}
+</style>

@@ -22,6 +22,22 @@
       <p v-if="video.description" class="opacity-80 leading-relaxed">
         {{ video.description }}
       </p>
+
+      <!-- CREDITS -->
+      <div v-if="creditsList.length" class="mt-12 text-left">
+        <h2 class="text-sm uppercase tracking-wide opacity-50 mb-4">Credits</h2>
+        <div class="space-y-2">
+          <div
+            v-for="(c, i) in creditsList"
+            :key="i"
+            class="credit-row flex items-baseline gap-2"
+          >
+            <span class="flex-none">{{ c.role }}</span>
+            <span class="credit-dots flex-1 min-w-4" aria-hidden="true" />
+            <span class="flex-none font-medium">{{ c.name }}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- OPTIONAL STILLS -->
@@ -67,6 +83,15 @@
     musicVideos.value.find(v => v.slug === route.params.slug)
   )
 
+  const creditsList = computed(() => {
+    const list = video.value?.credits
+    if (!Array.isArray(list)) return []
+    return list.filter(c => c && (c.role || c.name)).map(c => ({
+      role: c.role || '',
+      name: c.name || ''
+    }))
+  })
+
   const normalizedGallery = computed(() => {
     if (!video.value?.gallery) return []
 
@@ -101,3 +126,11 @@
 
   onMounted(init)
 </script>
+
+<style scoped>
+.credit-row .credit-dots {
+  border-bottom: 1px dotted currentColor;
+  opacity: 0.5;
+  margin-bottom: 0.25em;
+}
+</style>

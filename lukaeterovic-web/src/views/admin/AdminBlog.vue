@@ -184,7 +184,7 @@ const inputClass = computed(() =>
     : 'border-white/20 focus:border-white text-white'
 )
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://lukaeterovic-api.radan-luka.workers.dev'
 const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN
 
 const posts = ref([])

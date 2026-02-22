@@ -5,11 +5,10 @@
 
     <!-- FULL-BLEED HORIZONTALLY + FORCE BACKGROUND -->
     <section
-      class="py-8 sm:py-12 lg:py-18"
       :class="isLight ? 'bg-white' : 'bg-black'"
     >
       <div class="w-full">
-        <div class="grid grid-cols-1 gap-y-8">
+        <div class="grid grid-cols-1 gap-0">
           <CategoryCard
             title="FILM"
             image="/assets/images/Film.jpeg"
