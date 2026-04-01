@@ -5,18 +5,8 @@
       v-if="open"
       class="fixed inset-0 z-[9999] overflow-hidden"
     >
-      <!-- Dynamic Blur Background -->
-      <div
-        class="absolute inset-0 scale-110 blur-3xl opacity-40 pointer-events-none transition-all duration-700"
-        :style="{
-          backgroundImage: `url(${currentImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }"
-      ></div>
-
-      <!-- Dark Overlay -->
-      <div class="absolute inset-0 bg-black/80 pointer-events-none"></div>
+      <!-- Dark Background -->
+      <div class="absolute inset-0 bg-black pointer-events-none"></div>
 
       <!-- Swiper -->
       <Swiper

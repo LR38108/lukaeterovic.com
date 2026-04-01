@@ -4,7 +4,7 @@
     class="py-20 px-6 md:px-24 text-center transition-colors duration-300"
   >
     <img
-      src="/assets/images/Footer.jpg"
+      src="/assets/images/Footer.png"
       alt="Luka"
       class="w-32 h-32 md:w-48 md:h-48 mx-auto rounded-full mb-6"
     />

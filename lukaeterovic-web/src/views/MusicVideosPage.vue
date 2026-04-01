@@ -12,8 +12,8 @@
         </p>
       </header>
 
-      <!-- GRID: 1 col mobile, 2 cols (50% each) landscape -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12">
+      <!-- GRID: 2 items per row -->
+      <div class="grid grid-cols-2 gap-10 md:gap-12">
         <RouterLink
           v-for="mv in musicVideos"
           :key="mv.slug"

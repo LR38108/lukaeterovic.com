@@ -39,7 +39,7 @@
           <img
             :src="img.url || img"
             loading="lazy"
-            class="w-full rounded-lg hover:opacity-90 transition"
+            class="w-full hover:opacity-90 transition"
           />
         </div>
       </div>

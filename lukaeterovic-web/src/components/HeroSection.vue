@@ -9,7 +9,7 @@
       preload="none"
       class="absolute inset-0 w-full h-full object-cover z-0"
     >
-      <source src="/assets/videos/sample-30s.mp4" type="video/mp4" />
+      <source src="/assets/videos/Showreel.mp4" type="video/mp4" />
     </video>
 
     <div

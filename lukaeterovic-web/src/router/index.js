@@ -33,12 +33,24 @@ const routes = [
     component: () => import('@/views/MusicVideoDetailPage.vue')
   },
   {
+    path: '/design',
+    component: () => import('@/views/DesignPage.vue')
+  },
+  {
+    path: '/design/:slug',
+    component: () => import('@/views/DesignDetailPage.vue')
+  },
+  {
     path: '/blog',
     component: () => import('@/views/BlogPage.vue')
   },
   {
     path: '/blog/:slug',
     component: () => import('@/views/BlogDetailPage.vue')
+  },
+  {
+    path: '/contact',
+    component: () => import('@/views/ContactPage.vue')
   },
 
   {

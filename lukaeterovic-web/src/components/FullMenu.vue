@@ -117,12 +117,9 @@
       children: [
         { label: 'FILM', to: '/film' },
         { label: 'MUSIC VIDEO', to: '/music-videos' },
-        { label: 'PHOTOGRAPHY', to: '/photography' },
-        { label: 'COMMERCIAL WORK', to: '#' },
-        { label: 'DESIGN', to: '#' }
+        { label: 'PHOTOGRAPHY', to: '/photography' }
       ]
     },
-    { label: 'ABOUT', to: '/about' },
     { label: 'CONTACT', to: '/contact' },
     { label: 'COFFEE&MACHINES', to: '/blog' }
   ]

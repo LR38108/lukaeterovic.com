@@ -25,15 +25,15 @@ const isMenuOpen = ref(false)
 const { isLight } = useTheme()
 const route = useRoute()
 
-const isHome = computed(() => route.path === '/')
+const isDarkFloatingHeader = computed(() => route.path === '/')
 
 const headerClasses = computed(() => {
-  if (isHome.value) return 'text-white'
+  if (isDarkFloatingHeader.value) return 'text-white'
   return isLight.value ? 'bg-white text-black' : 'bg-black text-white'
 })
 
 const logoSrc = computed(() => {
-  if (isHome.value) return '/assets/logos/logo_white.svg'
+  if (isDarkFloatingHeader.value) return '/assets/logos/logo_white.svg'
   return isLight.value ? '/assets/logos/logo_black.svg' : '/assets/logos/logo_white.svg'
 })
 </script>

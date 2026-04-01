@@ -29,12 +29,6 @@
         </div>
       </div>
 
-      <!-- Description -->
-      <div class="px-4 mt-5 text-sm md:text-base leading-relaxed">
-        <p v-if="tagline" class="italic font-medium mb-2">"{{ tagline }}"</p>
-        <p>{{ description }}</p>
-      </div>
-
       <!-- Buttons (visual only; whole card is the link) -->
       <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mt-7 px-4">
         <span
