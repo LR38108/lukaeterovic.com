@@ -26,7 +26,7 @@
           </h2>
 
           <div
-            class="mt-6 flex text-center text-sm font-semibold border border-white/40 divide-x divide-white/40 bg-black text-white rounded-sm overflow-hidden max-w-xl lg:max-w-none lg:mx-0 mx-auto">
+            class="mt-6 flex text-center text-sm font-semibold border border-black divide-x divide-black bg-white text-black overflow-hidden max-w-xl lg:max-w-none lg:mx-0 mx-auto">
             <div class="flex-1 py-2">{{ film.year }}</div>
             <div class="flex-1 py-2">{{ film.duration }}</div>
             <div class="flex-1 py-2">{{ film.type }}</div>
@@ -73,7 +73,7 @@
           <div class="mt-10 text-center lg:text-left" v-if="film.watchUrl">
             <button
               @click="openPlayer"
-              class="inline-block px-6 py-3 border border-white text-white bg-black uppercase tracking-wider hover:bg-white hover:text-black transition"
+              class="inline-block px-6 py-3 border border-white text-white bg-black uppercase tracking-wider hover:bg-white hover:text-black transition rounded-none"
             >
               ▶ Watch Film
             </button>
@@ -86,7 +86,7 @@
         <h3 class="font-bold mb-4 tracking-widest">GALLERY</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           <button v-for="(img, i) in galleryImages" :key="img.url + i" type="button"
-            class="group relative overflow-hidden rounded-sm" @click="openLightbox(i)">
+            class="group relative overflow-hidden" @click="openLightbox(i)">
             <img :src="img.url"
               class="w-full aspect-square object-cover bg-gray-300 transition-transform duration-300 group-hover:scale-[1.02]"
               loading="lazy" />

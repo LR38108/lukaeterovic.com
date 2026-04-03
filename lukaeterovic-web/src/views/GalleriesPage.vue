@@ -44,32 +44,18 @@
               class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
             />
-
-            <!-- OVERLAY -->
-            <div
-              class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            />
-
-            <!-- TEXT -->
-            <div
-              class="absolute bottom-0 left-0 right-0 p-5 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            >
-              <div class="text-lg font-semibold leading-tight">
-                {{ g.title }}
-              </div>
-              <div class="text-sm opacity-80 mt-1">
-                <span v-if="g.location">{{ g.location }}</span>
-                <span v-if="g.year"> · {{ g.year }}</span>
-              </div>
-            </div>
           </div>
 
-          <!-- BELOW IMAGE (MOBILE / ACCESSIBILITY) -->
-          <div class="mt-3 lg:hidden">
-            <div class="font-semibold">{{ g.title }}</div>
-            <div class="text-sm opacity-60">
-              <span v-if="g.location">{{ g.location }}</span>
-              <span v-if="g.year"> · {{ g.year }}</span>
+          <!-- Title + meta under banner (all caps title) -->
+          <div class="mt-4 text-left">
+            <div class="galleries-card-title text-lg md:text-xl font-bold uppercase tracking-[0.06em] leading-tight">
+              {{ g.title }}
+            </div>
+            <div
+              v-if="g.location || g.year"
+              class="text-sm opacity-60 mt-1"
+            >
+              {{ [g.location, g.year].filter(Boolean).join(' · ') }}
             </div>
           </div>
         </RouterLink>
@@ -96,5 +82,10 @@ onMounted(init)
 .galleries-page-intro {
   font-family: 'U001', sans-serif;
   font-weight: 400;
+}
+
+.galleries-card-title {
+  font-family: 'U001 Condensed', sans-serif;
+  font-weight: 700;
 }
 </style>

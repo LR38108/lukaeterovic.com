@@ -30,32 +30,10 @@
 
         <a
           href="mailto:lukaeterovic@live.com"
-          class="contact-email-glow contact-page-body mt-10 inline-block text-2xl md:text-3xl font-normal underline underline-offset-[0.2em] hover:opacity-90 transition-opacity"
-          :class="isLight ? 'text-black decoration-black/35' : 'text-white decoration-white/50'"
+          class="contact-email-btn mt-10 inline-block px-6 py-3 rounded text-sm md:text-base font-semibold no-underline transition-opacity hover:opacity-90 tracking-normal"
+          :class="isLight ? 'bg-black text-white' : 'bg-white text-black'"
         >
-          lukaeterovic@live.com
-        </a>
-
-        <a
-          href="mailto:lukaeterovic@live.com"
-          class="mt-8 inline-flex"
-          :class="isLight ? 'text-black/70 hover:text-black' : 'text-white/80 hover:text-white'"
-          aria-label="Email"
-        >
-          <svg
-            class="w-7 h-7"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-            <polyline points="15 3 21 3 21 9" />
-            <line x1="10" y1="14" x2="21" y2="3" />
-          </svg>
+          lukaeterovic<span class="contact-email-at">@</span>live.com
         </a>
       </div>
 
@@ -103,28 +81,25 @@ const themeClass = computed(() =>
   font-weight: 400;
 }
 
-.contact-email-glow {
-  transition:
-    text-shadow 0.35s ease,
-    opacity 0.35s ease;
+/* System sans so @ and email read clearly (U001 @ can look cramped) */
+.contact-email-btn {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  font-weight: 600;
+  font-feature-settings: 'kern' 1;
 }
 
-html[data-theme='dark'] .contact-email-glow {
-  text-shadow:
-    0 0 10px rgba(255, 255, 255, 0.28),
-    0 0 26px rgba(255, 255, 255, 0.12);
-}
-
-html[data-theme='dark'] .contact-email-glow:hover {
-  text-shadow:
-    0 0 14px rgba(255, 255, 255, 0.4),
-    0 0 32px rgba(255, 255, 255, 0.18);
-}
-
-html[data-theme='light'] .contact-email-glow {
-  text-shadow:
-    0 0 8px rgba(0, 0, 0, 0.06),
-    0 0 18px rgba(0, 0, 0, 0.04);
+.contact-email-at {
+  font-weight: 500;
+  padding: 0 0.06em;
+  opacity: 0.92;
 }
 
 footer {

@@ -15,17 +15,19 @@
       A Filmmaker, photographer, videographer, designer, writer and creative freelancer
       based in sunny city of Split in Croatia.
     </p>
-    <button
-        class="mt-6 px-6 py-3 rounded text-base md:text-lg font-semibold"
-        :class="isLight ? 'bg-black text-white' : 'bg-white text-black'"
-        >
-        Read more
-    </button>
+    <RouterLink
+      to="/about"
+      class="mt-6 inline-block px-6 py-3 rounded text-base md:text-lg font-semibold transition-opacity hover:opacity-90"
+      :class="isLight ? 'bg-black text-white' : 'bg-white text-black'"
+    >
+      Read more
+    </RouterLink>
   </section>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useTheme } from '@/composables/useTheme.js'
 
 const { isLight } = useTheme()
@@ -33,8 +35,4 @@ const { isLight } = useTheme()
 const sectionClasses = computed(() =>
   isLight.value ? 'bg-white text-black' : 'bg-black text-white'
 )
-
-const readMore = () => {
-  alert("Redirecting to full bio...")
-}
 </script>

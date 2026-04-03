@@ -4,7 +4,9 @@
 
       <!-- HEADER -->
       <header class="mb-20">
-        <h1 class="text-4xl font-bold mb-4">Coffe & Machines</h1>
+        <h1 class="blog-page-title text-4xl font-bold mb-4 tracking-[0.06em]">
+          Coffee & Machines
+        </h1>
         <p class="opacity-70 text-lg">
           Notes on film, photography, process, and work.
         </p>
@@ -12,7 +14,10 @@
 
       <!-- POSTS -->
       <article v-for="post in publishedPosts" :key="post.slug" class="mb-20">
-        <RouterLink :to="`/blog/${post.slug}`" class="block group">
+        <RouterLink
+          :to="`/blog/${post.slug}`"
+          class="block group no-underline hover:no-underline"
+        >
 
           <!-- COVER -->
           <div v-if="post.cover_image" class="mb-6 aspect-[16/9] overflow-hidden rounded bg-black/5">
@@ -22,7 +27,7 @@
           </div>
 
           <!-- TITLE -->
-          <h2 class="text-2xl font-semibold mb-2 group-hover:underline">
+          <h2 class="blog-post-title text-2xl font-semibold mb-2">
             {{ post.title }}
           </h2>
 
@@ -54,3 +59,17 @@
   posts.value.filter(p => p?.published == 1)
 )
 </script>
+
+<style scoped>
+.blog-page-title {
+  font-family: 'U001 Condensed', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.blog-post-title {
+  font-family: 'U001 Condensed', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+</style>

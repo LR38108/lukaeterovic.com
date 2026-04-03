@@ -17,8 +17,8 @@
     </div>
 
     <!-- CONTENT -->
-    <div class="max-w-3xl mx-auto px-4">
-      <header class="mb-12 text-center">
+    <div class="max-w-3xl mx-auto px-4 text-left">
+      <header class="mb-12 text-left">
         <h1 class="blog-detail-title text-4xl font-bold mb-4">
           {{ post.title }}
         </h1>
@@ -28,12 +28,12 @@
         </div>
       </header>
 
-      <p v-if="post.excerpt" class="blog-detail-excerpt text-lg opacity-80 mb-12">
+      <p v-if="post.excerpt" class="blog-detail-excerpt text-lg opacity-80 mb-12 text-left">
         {{ post.excerpt }}
       </p>
 
       <div
-        class="w-full max-h-[60vh] md:max-h-[70vh] object-cover rounded"
+        class="blog-detail-body w-full text-left rounded"
         v-html="post.content"
       />
     </div>
@@ -72,10 +72,23 @@ onMounted(async () => {
 .blog-detail-title {
   font-family: 'U001 Condensed', sans-serif;
   font-weight: 700;
+  text-transform: uppercase;
 }
 
 .blog-detail-excerpt {
   font-family: 'EB Garamond', serif;
   font-style: italic;
+}
+
+/* Left-align CMS HTML (override centered markup from API) */
+.blog-detail-body :deep(p),
+.blog-detail-body :deep(li),
+.blog-detail-body :deep(blockquote),
+.blog-detail-body :deep(h1),
+.blog-detail-body :deep(h2),
+.blog-detail-body :deep(h3),
+.blog-detail-body :deep(h4),
+.blog-detail-body :deep(figcaption) {
+  text-align: left;
 }
 </style>

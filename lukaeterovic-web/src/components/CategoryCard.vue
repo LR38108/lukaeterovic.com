@@ -52,51 +52,13 @@ const navigate = () => {
 }
 
 const rootEl = ref(null)
-const inView = ref(false)
-const offset = ref(0)
 const titleVisible = ref(false)
 
-let rafId = null
 let observer = null
 let fadeTimeoutId = null
 
 function prefersReducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
-
-function clamp(n, min, max) {
-  return Math.min(Math.max(n, min), max)
-}
-
-function tick() {
-  if (!inView.value || !rootEl.value) {
-    rafId = null
-    return
-  }
-
-  const rect = rootEl.value.getBoundingClientRect()
-  const vh = window.innerHeight || 1
-
-  // 0..1 while passing through viewport
-  const progress = (vh - rect.top) / (vh + rect.height)
-  const p = clamp(progress, 0, 1)
-
-  // subtle parallax range (px)
-  const range = 16
-  offset.value = (p - 0.5) * range * 2
-
-  rafId = requestAnimationFrame(tick)
-}
-
-function start() {
-  if (prefersReducedMotion()) return
-  if (rafId) return
-  rafId = requestAnimationFrame(tick)
-}
-
-function stop() {
-  if (rafId) cancelAnimationFrame(rafId)
-  rafId = null
 }
 
 function clearFadeTimeout() {
@@ -111,7 +73,6 @@ onMounted(() => {
     (entries) => {
       const entry = entries[0]
       const isIntersecting = !!entry?.isIntersecting
-      inView.value = isIntersecting
 
       if (isIntersecting) {
         if (!titleVisible.value) {
@@ -120,9 +81,6 @@ onMounted(() => {
             titleVisible.value = true
           }, 150)
         }
-        start()
-      } else {
-        stop()
       }
     },
     { threshold: 0.2 }
@@ -136,7 +94,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  stop()
   clearFadeTimeout()
   if (observer && rootEl.value) observer.unobserve(rootEl.value)
   if (observer) observer.disconnect()
@@ -146,7 +103,6 @@ const bgStyle = computed(() => ({
   backgroundImage: `url(${props.image})`,
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
-  // parallax via background-position (no transform seams)
-  backgroundPosition: `center calc(50% + ${offset.value}px)`
+  backgroundPosition: 'center center'
 }))
 </script>

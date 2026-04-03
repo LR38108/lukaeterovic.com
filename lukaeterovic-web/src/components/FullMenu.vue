@@ -15,7 +15,7 @@
         <div
           v-for="(item, index) in menuItems"
           :key="item.label"
-          :class="index > 0 ? 'border-t border-black/20 dark:border-white/30' : ''"
+          :class="index > 0 ? topDividerClass : ''"
         >
           <!-- DROPDOWN ITEM (e.g. WORK) -->
           <template v-if="item.children">
@@ -24,13 +24,19 @@
               @click="openDropdown = openDropdown === item.label ? null : item.label"
             >
               <span class="tracking-[0.09em] text-2xl">{{ item.label }}</span>
-              <span class="flex items-center justify-center w-6 h-6">
-                <svg v-if="openDropdown === item.label" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-                <svg v-else class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
+              <span class="work-toggle-icon flex items-center justify-center w-6 h-6 shrink-0" aria-hidden="true">
+                <svg class="w-6 h-6 overflow-visible" viewBox="0 0 24 24" fill="none">
+                  <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line
+                      x1="12"
+                      y1="5"
+                      x2="12"
+                      y2="19"
+                      class="work-toggle-bar-v"
+                      :class="{ 'work-toggle-bar-v--open': openDropdown === item.label }"
+                    />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </g>
                 </svg>
               </span>
             </div>
@@ -40,7 +46,7 @@
                   v-for="child in item.children"
                   :key="child.label"
                   :to="child.to"
-                  class="flex justify-between items-center py-5 pl-6 cursor-pointer border-t border-black/10 dark:border-white/10"
+                  class="flex justify-between items-center py-5 pl-6 cursor-pointer"
                   @click="$emit('close')"
                 >
                   <span class="tracking-[0.09em] text-xl">{{ child.label }}</span>
@@ -66,7 +72,7 @@
         </div>
 
         <!-- LIGHTS -->
-        <div class="flex justify-between items-center border-t border-black/20 dark:border-white/30 py-7">
+        <div class="flex justify-between items-center py-7" :class="topDividerClass">
           <span class="tracking-[0.09em] text-2xl">LIGHTS</span>
           <img :src="switchIcon" class="h-7 cursor-pointer" alt="Lights toggle" @click="toggleTheme" />
         </div>
@@ -99,6 +105,11 @@
   const { isLight, toggleTheme } = useTheme()
   const openDropdown = ref(null)
 
+  /** Matches app theme (Tailwind `dark:` follows OS, not LIGHTS toggle). */
+  const topDividerClass = computed(() =>
+    isLight.value ? 'border-t border-black/25' : 'border-t border-white/30'
+  )
+
   const chevron = computed(() =>
     isLight.value ? '/assets/icons/chevron_black.svg' : '/assets/icons/chevron_white.svg'
   )
@@ -120,6 +131,7 @@
         { label: 'PHOTOGRAPHY', to: '/photography' }
       ]
     },
+    { label: 'ABOUT', to: '/about' },
     { label: 'CONTACT', to: '/contact' },
     { label: 'COFFEE&MACHINES', to: '/blog' }
   ]
@@ -154,5 +166,22 @@
   .dropdown-leave-to {
     opacity: 0;
     transform: translateY(-8px);
+  }
+
+  /* WORK +/- : vertical stroke collapses into minus */
+  .work-toggle-bar-v {
+    transform-origin: 12px 12px;
+    transform: scaleY(1);
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .work-toggle-bar-v--open {
+    transform: scaleY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .work-toggle-bar-v {
+      transition: none;
+    }
   }
 </style>

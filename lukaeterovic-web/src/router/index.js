@@ -52,6 +52,10 @@ const routes = [
     path: '/contact',
     component: () => import('@/views/ContactPage.vue')
   },
+  {
+    path: '/about',
+    component: () => import('@/views/AboutPage.vue')
+  },
 
   {
     path: '/admin',

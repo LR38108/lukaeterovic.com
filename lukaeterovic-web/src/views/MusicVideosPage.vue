@@ -12,8 +12,8 @@
         </p>
       </header>
 
-      <!-- GRID: 2 items per row -->
-      <div class="grid grid-cols-2 gap-10 md:gap-12">
+      <!-- GRID: 2 per row -->
+      <div class="grid grid-cols-2 gap-x-6 gap-y-12 sm:gap-x-10 md:gap-x-14 md:gap-y-14">
         <RouterLink
           v-for="mv in musicVideos"
           :key="mv.slug"
@@ -21,7 +21,7 @@
           class="group block"
         >
           <!-- COVER -->
-          <div class="relative aspect-video bg-black/5 overflow-hidden rounded">
+          <div class="relative aspect-video bg-black/5 overflow-hidden">
             <img
               v-if="mv.thumbnail"
               :src="mv.thumbnail"
@@ -34,8 +34,8 @@
               </div>
             </div>
           </div>
-          <!-- TITLE (below, left) -->
-          <h2 class="mt-3 text-left text-lg md:text-xl font-semibold leading-tight group-hover:underline">
+          <!-- TITLE (below, left — all caps, condensed) -->
+          <h2 class="music-videos-card-title mt-4 text-left text-base md:text-lg font-bold uppercase tracking-[0.06em] leading-tight group-hover:underline">
             {{ mv.title }}
           </h2>
         </RouterLink>
@@ -61,5 +61,10 @@
 .music-videos-page-intro {
   font-family: 'U001', sans-serif;
   font-weight: 400;
+}
+
+.music-videos-card-title {
+  font-family: 'U001 Condensed', sans-serif;
+  font-weight: 700;
 }
 </style>

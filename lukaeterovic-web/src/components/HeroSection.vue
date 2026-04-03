@@ -1,13 +1,16 @@
 <template>
-  <section class="hero relative w-full h-screen overflow-hidden">
+  <section class="hero relative w-full h-screen overflow-hidden bg-black">
     <video
-      v-if="videoReady"
+      ref="videoRef"
+      class="absolute inset-0 w-full h-full object-cover z-0"
+      :poster="posterUrl"
       autoplay
       muted
       loop
       playsinline
-      preload="none"
-      class="absolute inset-0 w-full h-full object-cover z-0"
+      webkit-playsinline
+      preload="auto"
+      @loadedmetadata="onLoadedMetadata"
     >
       <source src="/assets/videos/Showreel.mp4" type="video/mp4" />
     </video>
@@ -25,16 +28,80 @@
   </section>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 
-const videoReady = ref(false)
+const videoRef = ref(null)
+/** JPEG data URL from first decoded frame — shown until video plays (esp. Safari) */
+const posterUrl = ref('')
+
+let posterCaptured = false
+let metadataHandled = false
+
+function tryPlay() {
+  const el = videoRef.value
+  if (!el) return
+  const p = el.play()
+  if (p !== undefined && typeof p.then === 'function') {
+    p.catch(() => {
+      /* Autoplay blocked — muted video usually still plays */
+    })
+  }
+}
+
+function capturePosterFromVideo() {
+  const video = videoRef.value
+  if (!video || posterCaptured || !video.videoWidth || !video.videoHeight) return
+
+  try {
+    const canvas = document.createElement('canvas')
+    const vw = video.videoWidth
+    const vh = video.videoHeight
+    const maxW = 1920
+    let tw = vw
+    let th = vh
+    if (tw > maxW) {
+      th = (th * maxW) / tw
+      tw = maxW
+    }
+    canvas.width = tw
+    canvas.height = th
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    ctx.drawImage(video, 0, 0, tw, th)
+    posterUrl.value = canvas.toDataURL('image/jpeg', 0.88)
+    posterCaptured = true
+  } catch (e) {
+    console.warn('Hero poster frame capture failed', e)
+  }
+}
+
+function onLoadedMetadata() {
+  const video = videoRef.value
+  if (!video || metadataHandled) return
+  metadataHandled = true
+
+  const afterSeek = () => {
+    video.removeEventListener('seeked', afterSeek)
+    capturePosterFromVideo()
+    tryPlay()
+  }
+
+  video.addEventListener('seeked', afterSeek)
+
+  // Tiny seek so engines decode a real frame (Safari is picky about t=0)
+  const t = Math.min(0.05, Math.max(0.001, (video.duration || 1) * 0.001))
+  video.currentTime = t
+
+  // If seeked never fires (rare), still try capture + play
+  setTimeout(() => {
+    if (!posterCaptured) {
+      capturePosterFromVideo()
+      tryPlay()
+    }
+  }, 300)
+}
 
 onMounted(() => {
-  // Wait until main thread is free
-  requestIdleCallback?.(() => {
-    videoReady.value = true
-  }) || setTimeout(() => {
-    videoReady.value = true
-  }, 1500)
+  nextTick(() => tryPlay())
 })
 </script>
