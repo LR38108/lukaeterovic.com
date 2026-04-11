@@ -12,7 +12,7 @@
       preload="auto"
       @loadedmetadata="onLoadedMetadata"
     >
-      <source src="/assets/videos/Showreel.mp4" type="video/mp4" />
+      <source :src="heroVideoSrc" type="video/mp4" />
     </video>
 
     <div
@@ -29,6 +29,8 @@
 </template>
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
+
+const heroVideoSrc = `${import.meta.env.BASE_URL}assets/videos/Showreel.mp4`
 
 const videoRef = ref(null)
 /** JPEG data URL from first decoded frame — shown until video plays (esp. Safari) */

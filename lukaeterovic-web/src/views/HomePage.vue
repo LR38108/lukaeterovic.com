@@ -24,6 +24,11 @@
             image="/assets/images/MusicVideo.jpg"
             route="/music-videos"
           />
+          <CategoryCard
+            title="DESIGN"
+            image="/assets/images/Design.jpg"
+            route="/design"
+          />
         </div>
       </div>
     </section>

@@ -128,7 +128,8 @@
       children: [
         { label: 'FILM', to: '/film' },
         { label: 'MUSIC VIDEO', to: '/music-videos' },
-        { label: 'PHOTOGRAPHY', to: '/photography' }
+        { label: 'PHOTOGRAPHY', to: '/photography' },
+        { label: 'DESIGN', to: '/design' }
       ]
     },
     { label: 'ABOUT', to: '/about' },

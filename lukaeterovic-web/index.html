@@ -24,6 +24,13 @@
         z-index: 9999;
         flex-direction: column;
         gap: 24px;
+        transition: opacity 0.4s ease, visibility 0.4s ease;
+      }
+
+      #initial-loader.initial-loader--done {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
       }
 
       #initial-loader img {
@@ -31,39 +38,39 @@
         opacity: 0.85;
       }
 
-      .loader-line {
+      .loader-line-track {
         width: 80px;
-        height: 1px;
-        background: white;
-        opacity: 0.4;
-        animation: pulse 1.2s ease-in-out infinite;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.12);
+        overflow: hidden;
+        border-radius: 2px;
       }
 
-      @keyframes pulse {
-        0% {
-          transform: scaleX(0.4);
-          opacity: 0.2;
-        }
-        50% {
-          transform: scaleX(1);
-          opacity: 0.8;
-        }
-        100% {
-          transform: scaleX(0.4);
-          opacity: 0.2;
-        }
+      .loader-line-fill {
+        height: 100%;
+        width: 100%;
+        transform-origin: left center;
+        transform: scaleX(0);
+        will-change: transform;
+        transition: transform 0.35s ease-out;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.15) 0%,
+          rgba(255, 255, 255, 0.55) 45%,
+          #ffffff 100%
+        );
       }
     </style>
   </head>
 
   <body>
-    <div id="app">
-      <div id="initial-loader">
-        <!-- IMPORTANT: use public path style -->
-        <img src="/assets/logos/logo_white.svg" alt="Logo" />
-        <div class="loader-line"></div>
+    <div id="initial-loader">
+      <img src="/assets/logos/logo_white.svg" alt="Luka Eterović" />
+      <div class="loader-line-track" aria-hidden="true">
+        <div class="loader-line-fill"></div>
       </div>
     </div>
+    <div id="app"></div>
 
     <script type="module" src="/src/main.js"></script>
   </body>
