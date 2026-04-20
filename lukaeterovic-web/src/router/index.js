@@ -75,6 +75,10 @@ const routes = [
         component: () => import('@/views/admin/AdminMusicVideos.vue')
       },
       {
+        path: 'design',
+        component: () => import('@/views/admin/AdminDesignProjects.vue')
+      },
+      {
         path: 'blog',
         component: () => import('@/views/admin/AdminBlog.vue')
       }

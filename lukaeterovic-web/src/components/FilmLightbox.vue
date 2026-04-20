@@ -27,7 +27,7 @@
       <button
         v-if="hasMany"
         type="button"
-        class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 px-3 py-3 text-white/90 hover:text-white bg-white/10 hover:bg-white/15 rounded-full backdrop-blur"
+        class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 px-3 py-3 text-white/90 hover:text-white bg-white/10 hover:bg-white/15 rounded-none backdrop-blur"
         aria-label="Previous image"
         @click.stop="prev"
       >
@@ -48,7 +48,7 @@
       <button
         v-if="hasMany"
         type="button"
-        class="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 px-3 py-3 text-white/90 hover:text-white bg-white/10 hover:bg-white/15 rounded-full backdrop-blur"
+        class="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 px-3 py-3 text-white/90 hover:text-white bg-white/10 hover:bg-white/15 rounded-none backdrop-blur"
         aria-label="Next image"
         @click.stop="next"
       >

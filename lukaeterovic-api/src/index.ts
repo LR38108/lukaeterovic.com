@@ -67,6 +67,20 @@ type MusicVideoPayload = {
   gallery?: any[]
 }
 
+type DesignProjectPayload = {
+  slug: string
+  title: string
+  client?: string
+  year?: string | number
+  thumbnail?: string | null
+  hero_image?: string | null
+  description?: string
+  text_middle?: string | null
+  text_footer?: string | null
+  credits?: any[]
+  gallery?: any[]
+}
+
 type BlogPostPayload = {
   slug: string
   title: string
@@ -161,6 +175,23 @@ export default {
 
       if (url.pathname.startsWith('/music-videos/') && method === 'DELETE')
         return deleteMusicVideo(url.pathname.split('/')[2], env)
+
+      /* ===== DESIGN PROJECTS ===== */
+
+      if (url.pathname === '/design-projects' && method === 'GET')
+        return getDesignProjects(env)
+
+      if (url.pathname.startsWith('/design-projects/') && method === 'GET')
+        return getDesignProject(url.pathname.split('/')[2], env)
+
+      if (url.pathname === '/design-projects' && method === 'POST')
+        return createDesignProject(request, env)
+
+      if (url.pathname.startsWith('/design-projects/') && method === 'PUT')
+        return updateDesignProject(url.pathname.split('/')[2], request, env)
+
+      if (url.pathname.startsWith('/design-projects/') && method === 'DELETE')
+        return deleteDesignProject(url.pathname.split('/')[2], env)
 
       /* ===== BLOG ===== */
 
@@ -509,6 +540,98 @@ async function updateMusicVideo(slug: string, request: Request, env: Env) {
 
 async function deleteMusicVideo(slug: string, env: Env) {
   await env.DB.prepare(`DELETE FROM music_videos WHERE slug = ?`).bind(slug).run()
+  return json({ ok: true })
+}
+
+/* =====================
+   DESIGN PROJECTS
+===================== */
+
+function hydrateDesignProject(row: any) {
+  return {
+    ...row,
+    credits: safeJSON(row.credits, []),
+    gallery: normalizeImages(safeJSON(row.gallery, []))
+  }
+}
+
+async function getDesignProjects(env: Env) {
+  const { results } = await env.DB
+    .prepare(`SELECT * FROM design_projects ORDER BY created_at DESC`)
+    .all()
+
+  return json(results.map(hydrateDesignProject))
+}
+
+async function getDesignProject(slug: string, env: Env) {
+  const row = await env.DB
+    .prepare(`SELECT * FROM design_projects WHERE slug = ?`)
+    .bind(slug)
+    .first()
+
+  if (!row) return json({ error: 'Not found' }, 404)
+  return json(hydrateDesignProject(row))
+}
+
+async function createDesignProject(request: Request, env: Env) {
+  const data = (await request.json()) as DesignProjectPayload
+
+  await env.DB.prepare(`
+    INSERT INTO design_projects (
+      slug, title, client, year,
+      thumbnail, hero_image, description,
+      text_middle, text_footer,
+      credits, gallery
+    ) VALUES (
+      ?,?,?,?,?,?,?,?,?,?,?
+    )
+  `).bind(
+    data.slug,
+    data.title ?? '',
+    data.client ?? '',
+    data.year ?? '',
+    data.thumbnail ?? null,
+    data.hero_image ?? null,
+    data.description ?? '',
+    data.text_middle ?? '',
+    data.text_footer ?? '',
+    JSON.stringify(data.credits || []),
+    JSON.stringify(normalizeImages(data.gallery || []))
+  ).run()
+
+  return json({ ok: true })
+}
+
+async function updateDesignProject(slug: string, request: Request, env: Env) {
+  const data = (await request.json()) as DesignProjectPayload
+
+  await env.DB.prepare(`
+    UPDATE design_projects SET
+      title = ?, client = ?, year = ?,
+      thumbnail = ?, hero_image = ?, description = ?,
+      text_middle = ?, text_footer = ?,
+      credits = ?, gallery = ?,
+      updated_at = datetime('now')
+    WHERE slug = ?
+  `).bind(
+    data.title ?? '',
+    data.client ?? '',
+    data.year ?? '',
+    data.thumbnail ?? null,
+    data.hero_image ?? null,
+    data.description ?? '',
+    data.text_middle ?? '',
+    data.text_footer ?? '',
+    JSON.stringify(data.credits || []),
+    JSON.stringify(normalizeImages(data.gallery || [])),
+    slug
+  ).run()
+
+  return json({ ok: true })
+}
+
+async function deleteDesignProject(slug: string, env: Env) {
+  await env.DB.prepare(`DELETE FROM design_projects WHERE slug = ?`).bind(slug).run()
   return json({ ok: true })
 }
 

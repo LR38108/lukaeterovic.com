@@ -18,11 +18,31 @@
             <input
               v-model="passcode"
               type="password"
-              placeholder="Passcode"
+              :placeholder="uiPass ? 'Password' : 'Admin token'"
               class="w-full bg-transparent border-b pb-3 text-lg tracking-wide focus:outline-none transition-all caret-current"
               :class="inputClass"
               @keydown.enter="login"
             />
+
+            <p v-if="!apiToken" class="text-xs opacity-50 text-left leading-relaxed">
+              Set <code class="text-[0.7em]">VITE_ADMIN_TOKEN</code> in
+              <code class="text-[0.7em]">.env.local</code> (same value as Worker secret
+              <code class="text-[0.7em]">ADMIN_TOKEN</code> from
+              <code class="text-[0.7em]">wrangler secret put</code>), then restart
+              <code class="text-[0.7em]">npm run dev</code>.
+            </p>
+
+            <p v-else-if="uiPass" class="text-xs opacity-50 text-left leading-relaxed">
+              Log in with your short password. Uploads still use
+              <code class="text-[0.7em]">VITE_ADMIN_TOKEN</code> from
+              <code class="text-[0.7em]">.env.local</code> (not shown here).
+            </p>
+
+            <p v-else class="text-xs opacity-50 text-left leading-relaxed">
+              Optional: set <code class="text-[0.7em]">VITE_ADMIN_PASS</code> in
+              <code class="text-[0.7em]">.env.local</code> for a short login password; keep
+              <code class="text-[0.7em]">VITE_ADMIN_TOKEN</code> for the API only.
+            </p>
 
             <button
               class="w-full py-3 text-sm uppercase tracking-widest transition-all duration-200 active:scale-[0.98]"
@@ -45,7 +65,7 @@
             <h1 class="text-xl font-bold">Admin</h1>
 
             <button
-              class="px-3 py-2 border rounded text-sm"
+              class="px-3 py-2 border rounded-none text-sm"
               :class="btnClass"
               @click="mobileOpen = !mobileOpen"
             >
@@ -56,13 +76,13 @@
           <!-- MOBILE MENU -->
           <div
             v-if="mobileOpen"
-            class="lg:hidden mb-8 space-y-2 border rounded p-4"
+            class="lg:hidden mb-8 space-y-2 border rounded-none p-4"
           >
             <RouterLink
               v-for="link in links"
               :key="link.to"
               :to="link.to"
-              class="block px-3 py-2 rounded font-semibold"
+              class="block px-3 py-2 rounded-none font-semibold"
               :class="linkClass(link.to)"
               @click="mobileOpen = false"
             >
@@ -81,7 +101,7 @@
                   v-for="link in links"
                   :key="link.to"
                   :to="link.to"
-                  class="block px-3 py-2 rounded font-semibold"
+                  class="block px-3 py-2 rounded-none font-semibold"
                   :class="linkClass(link.to)"
                 >
                   {{ link.label }}
@@ -89,7 +109,7 @@
               </nav>
 
               <button
-                class="mt-8 px-3 py-2 border rounded text-sm"
+                class="mt-8 px-3 py-2 border rounded-none text-sm"
                 :class="btnClass"
                 @click="logout"
               >
@@ -117,8 +137,12 @@ import { useTheme } from '@/composables/useTheme'
 const { isLight } = useTheme()
 const route = useRoute()
 
+/** Bearer token for Worker; must match `wrangler secret put ADMIN_TOKEN`. */
+const apiToken = (import.meta.env.VITE_ADMIN_TOKEN || '').trim()
+/** Optional short string only for unlocking this screen (see `.env.example`). */
+const uiPass = (import.meta.env.VITE_ADMIN_PASS || '').trim()
+
 const ADMIN_KEY = 'admin_auth'
-const PASS = 'admin' // replace with real auth later
 
 const authed = ref(localStorage.getItem(ADMIN_KEY) === '1')
 const passcode = ref('')
@@ -129,6 +153,7 @@ const links = [
   { to: '/admin/films', label: 'Films' },
   { to: '/admin/galleries', label: 'Galleries' },
   { to: '/admin/music-videos', label: 'Music Videos' },
+  { to: '/admin/design', label: 'Design' },
   { to: '/admin/blog', label: 'Blog' }
 ]
 
@@ -148,17 +173,26 @@ const inputClass = computed(() =>
 
 const buttonClass = computed(() =>
   isLight.value
-    ? 'text-black border border-black/20 hover:bg-black hover:text-white'
-    : 'text-white border border-white/20 hover:bg-white hover:text-black'
+    ? 'rounded-none text-black border border-black/20 hover:bg-black hover:text-white'
+    : 'rounded-none text-white border border-white/20 hover:bg-white hover:text-black'
 )
 
 function login() {
-  if (passcode.value === PASS) {
+  if (!apiToken) {
+    error.value =
+      'VITE_ADMIN_TOKEN is not set. Add it to .env.local and restart the dev server.'
+    return
+  }
+  const entered = passcode.value.trim()
+  const ok = uiPass
+    ? entered === uiPass || entered === apiToken
+    : entered === apiToken
+  if (ok) {
     authed.value = true
     localStorage.setItem(ADMIN_KEY, '1')
     error.value = ''
   } else {
-    error.value = 'Wrong passcode'
+    error.value = uiPass ? 'Wrong password' : 'Wrong token'
   }
 }
 

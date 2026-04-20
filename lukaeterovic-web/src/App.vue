@@ -1,7 +1,10 @@
 <template>
-  <div :class="appClass" class="min-h-screen overflow-x-hidden">
-    <HeaderNav /> <!-- Always visible -->
-    <router-view /> <!-- Page-specific content -->
+  <div :class="appClass" class="min-h-screen overflow-x-hidden flex flex-col">
+    <HeaderNav />
+    <main class="flex-1 w-full min-h-0">
+      <router-view />
+    </main>
+    <SiteFooter />
   </div>
 </template>
 
@@ -9,6 +12,7 @@
 import { computed } from 'vue'
 import { onMounted } from 'vue'
 import HeaderNav from '@/components/HeaderNav.vue'
+import SiteFooter from '@/components/SiteFooter.vue'
 import { useTheme } from '@/composables/useTheme'
 import { useFilms } from '@/composables/useFilms'
 

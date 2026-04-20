@@ -40,7 +40,7 @@
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center mt-10 md:mt-12">
           <RouterLink
             to="/contact"
-            class="about-btn inline-flex justify-center items-center px-8 py-3 text-sm md:text-base font-semibold uppercase tracking-[0.12em] text-center transition-opacity hover:opacity-90"
+            class="about-btn inline-flex justify-center items-center px-8 py-3 text-sm md:text-base font-semibold tracking-normal text-center transition-opacity hover:opacity-90 rounded-none"
             :class="isLight ? 'bg-black text-white' : 'bg-white text-black'"
           >
             Contact me
@@ -48,11 +48,17 @@
           <a
             href="/assets/cv.pdf"
             download
-            class="about-btn inline-flex justify-center items-center gap-2 px-8 py-3 text-sm md:text-base font-semibold uppercase tracking-[0.12em] text-center transition-opacity hover:opacity-90"
+            class="about-btn inline-flex justify-center items-center gap-2 px-8 py-3 text-sm md:text-base font-semibold tracking-normal text-center transition-opacity hover:opacity-90 rounded-none"
             :class="isLight ? 'bg-black text-white' : 'bg-white text-black'"
           >
             Download CV
-            <span aria-hidden="true">↓</span>
+            <img
+              :src="isLight ? '/assets/icons/download_white.svg' : '/assets/icons/download_black.svg'"
+              alt=""
+              class="about-cv-download-icon h-5 w-auto shrink-0"
+              width="31"
+              height="36"
+            />
           </a>
         </div>
 
@@ -93,24 +99,6 @@
             </a>
           </div>
         </div>
-
-        <footer
-          class="mt-16 md:mt-20 pt-10 border-t text-center"
-          :class="isLight ? 'border-black/15' : 'border-white/15'"
-        >
-          <p
-            class="text-xs uppercase tracking-[0.12em] leading-relaxed"
-            :class="isLight ? 'text-black/60' : 'text-white/70'"
-          >
-            ALL WORK AND MATERIAL ON THIS WEBSITE IS 100% AI FREE.
-          </p>
-          <p
-            class="text-xs uppercase tracking-[0.12em] mt-3"
-            :class="isLight ? 'text-black/60' : 'text-white/70'"
-          >
-            ALL RIGHTS RESERVED 2026
-          </p>
-        </footer>
       </div>
     </div>
   </div>
@@ -140,6 +128,12 @@ const themeClass = computed(() =>
 .about-social-link {
   font-family: 'U001', sans-serif;
   font-weight: 400;
+}
+
+.about-social-link span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
 }
 
 .about-btn {

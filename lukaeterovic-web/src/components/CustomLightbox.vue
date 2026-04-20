@@ -68,8 +68,8 @@
             <img
               :src="`${navBase}/${isLight ? 'left_black' : 'left_white'}.svg`"
               alt=""
-              width="32"
-              height="57"
+              width="16"
+              height="28"
             />
           </button>
           <button
@@ -81,8 +81,8 @@
             <img
               :src="`${navBase}/${isLight ? 'right_black' : 'right_white'}.svg`"
               alt=""
-              width="32"
-              height="57"
+              width="16"
+              height="28"
             />
           </button>
           <div class="lightbox-pagination swiper-pagination clb-pagination" />
@@ -219,6 +219,7 @@ watch(open, (val) => {
   padding: 0.35rem;
   background: none;
   border: none;
+  border-radius: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -231,18 +232,20 @@ watch(open, (val) => {
   opacity: 1;
 }
 
+/* Match close control (~28px): chevrons are tall SVGs — size by height so they align with X */
 .lightbox-nav img {
   display: block;
-  width: 1.5rem;
-  height: auto;
-  max-height: min(16vh, 3.25rem);
+  width: auto;
+  height: 1.5rem;
+  max-width: 1.125rem;
+  object-fit: contain;
   pointer-events: none;
 }
 
 @media (min-width: 768px) {
   .lightbox-nav img {
-    width: 1.75rem;
-    max-height: min(18vh, 3.75rem);
+    height: 1.75rem;
+    max-width: 1rem;
   }
 }
 
@@ -319,5 +322,9 @@ watch(open, (val) => {
 /* Close icon: only white asset in folder — invert to black on light theme */
 .lightbox-root--light .lightbox-close-img {
   filter: brightness(0);
+}
+
+.lightbox-close {
+  border-radius: 0;
 }
 </style>

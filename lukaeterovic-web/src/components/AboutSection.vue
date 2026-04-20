@@ -17,7 +17,7 @@
     </p>
     <RouterLink
       to="/about"
-      class="mt-6 inline-block px-6 py-3 rounded text-base md:text-lg font-semibold transition-opacity hover:opacity-90"
+      class="mt-6 inline-block px-6 py-3 rounded-none text-base md:text-lg font-semibold transition-opacity hover:opacity-90"
       :class="isLight ? 'bg-black text-white' : 'bg-white text-black'"
     >
       Read more

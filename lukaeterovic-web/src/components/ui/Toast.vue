@@ -5,7 +5,7 @@
         <div
           v-for="t in toasts"
           :key="t.id"
-          class="pointer-events-auto px-4 py-3 text-sm tracking-wide"
+          class="pointer-events-auto px-4 py-3 text-sm tracking-wide rounded-none"
           :class="toastClass"
           @click="emit('dismiss', t.id)"
         >

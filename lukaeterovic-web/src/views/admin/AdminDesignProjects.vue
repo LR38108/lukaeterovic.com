@@ -13,41 +13,40 @@
       @cancel="dialog.cancel"
     />
 
-    <!-- ================= LIST ================= -->
     <div v-if="mode === 'list'">
       <div class="flex justify-between items-center mb-12">
-        <h2 class="text-2xl font-semibold tracking-tight">Music Videos</h2>
+        <h2 class="text-2xl font-semibold tracking-tight">Design</h2>
 
         <button
           class="flex items-center gap-2 text-sm uppercase tracking-widest opacity-70 hover:opacity-100 transition"
-          @click="createVideo"
+          @click="createProject"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
-          <span>Add music video</span>
+          <span>Add project</span>
         </button>
       </div>
 
       <div class="divide-y divide-current/10">
         <div
-          v-for="v in musicVideos"
-          :key="v.slug"
+          v-for="p in designProjects"
+          :key="p.slug"
           class="flex items-center justify-between py-6"
         >
           <div>
             <div class="font-medium">
-              {{ v.artist }} — {{ v.title }}
+              <span v-if="p.client">{{ p.client }} — </span>{{ p.title }}
             </div>
             <div class="text-xs opacity-50 mt-1">
-              /{{ v.slug }}
+              /{{ p.slug }}
             </div>
           </div>
 
           <div class="flex gap-8 items-center">
             <button
               class="opacity-40 hover:opacity-100 transition"
-              @click="editVideo(v.slug)"
+              @click="editProject(p.slug)"
               aria-label="Edit"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -57,7 +56,7 @@
 
             <button
               class="text-xl leading-none opacity-30 hover:opacity-100 transition"
-              @click="deleteVideoConfirm(v.slug)"
+              @click="deleteProjectConfirm(p.slug)"
               aria-label="Delete"
             >
               ×
@@ -67,7 +66,6 @@
       </div>
     </div>
 
-    <!-- ================= EDITOR ================= -->
     <div v-else class="max-w-3xl">
       <button
         class="mb-12 text-sm opacity-50 hover:opacity-100 transition"
@@ -77,16 +75,15 @@
       </button>
 
       <h2 class="text-2xl font-semibold mb-16 tracking-tight">
-        {{ isNew ? 'Add music video' : 'Edit music video' }}
+        {{ isNew ? 'Add design project' : 'Edit design project' }}
       </h2>
 
-      <!-- BASIC -->
       <section class="section">
         <h3 class="section-title">Basic</h3>
 
         <label class="field">
-          <span class="label">Artist</span>
-          <input v-model="draft.artist" class="control" :class="inputClass" />
+          <span class="label">Client</span>
+          <input v-model="draft.client" class="control" :class="inputClass" />
         </label>
 
         <label class="field">
@@ -110,27 +107,25 @@
         </label>
       </section>
 
-      <!-- VIDEO -->
       <section class="section">
-        <h3 class="section-title">Video</h3>
+        <h3 class="section-title">About the project</h3>
 
         <label class="field">
-          <span class="label">YouTube URL</span>
-          <input v-model="draft.videoUrl" class="control" :class="inputClass" />
-        </label>
-      </section>
-
-      <!-- DESCRIPTION -->
-      <section class="section">
-        <h3 class="section-title">Description</h3>
-
-        <label class="field">
-          <span class="label">Text</span>
+          <span class="label">Opening text</span>
           <textarea v-model="draft.description" class="control textarea" :class="inputClass" />
         </label>
+
+        <label class="field">
+          <span class="label">Middle text (after 2×2 images)</span>
+          <textarea v-model="draft.textMiddle" class="control textarea" :class="inputClass" />
+        </label>
+
+        <label class="field">
+          <span class="label">Closing text (after full-width image)</span>
+          <textarea v-model="draft.textFooter" class="control textarea" :class="inputClass" />
+        </label>
       </section>
 
-      <!-- CREDITS -->
       <section class="section">
         <h3 class="section-title">Credits</h3>
 
@@ -166,7 +161,6 @@
         </button>
       </section>
 
-      <!-- THUMBNAIL -->
       <section class="section">
         <h3 class="section-title">Thumbnail</h3>
 
@@ -188,13 +182,38 @@
         </div>
       </section>
 
-      <!-- STILLS -->
       <section class="section">
-        <h3 class="section-title">Stills</h3>
+        <h3 class="section-title">Hero image (detail)</h3>
+        <p class="text-xs opacity-50 mb-4">Optional. If empty, the thumbnail is used on the project page.</p>
 
         <label class="field">
-          <span class="label">Add stills</span>
-          <input type="file" accept="image/*" multiple class="file" @change="onStillsSelected" />
+          <span class="label">Hero file</span>
+          <input type="file" accept="image/*" class="file" @change="onHeroSelected" />
+        </label>
+
+        <div v-if="heroPreview" class="relative w-full max-w-md mt-2">
+          <img :src="heroPreview" class="w-full object-cover" />
+
+          <button
+            class="absolute top-2 right-2 text-xs opacity-60 hover:opacity-100"
+            @click="removeHero"
+            aria-label="Remove hero image"
+          >
+            ×
+          </button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h3 class="section-title">Gallery</h3>
+
+        <p class="text-xs opacity-50 mb-4 leading-relaxed">
+          Order matters: the first four images appear in a 2×2 grid; the fifth is full-width under “middle text”; any further images form another two-column grid.
+        </p>
+
+        <label class="field">
+          <span class="label">Add images</span>
+          <input type="file" accept="image/*" multiple class="file" @change="onGallerySelected" />
         </label>
 
         <div
@@ -212,7 +231,7 @@
             <button
               class="absolute top-2 right-2 text-xs opacity-50 hover:opacity-100"
               @click="removeImage(i, img)"
-              aria-label="Remove still"
+              aria-label="Remove image"
             >
               ×
             </button>
@@ -220,12 +239,11 @@
         </div>
       </section>
 
-      <!-- SAVE -->
       <button
         class="mt-16 text-sm uppercase tracking-widest opacity-60 hover:opacity-100 transition"
         @click="save"
       >
-        Save music video
+        Save project
       </button>
     </div>
   </section>
@@ -235,15 +253,15 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import Sortable from 'sortablejs'
 import { useTheme } from '@/composables/useTheme'
-import { useMusicVideos } from '@/composables/useMusicVideos'
+import { useDesignProjects } from '@/composables/useDesignProjects'
 import { useDialog } from '@/composables/useDialog'
 import { useToast } from '@/composables/useToast'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import Toast from '@/components/ui/Toast.vue'
 
 const { isLight } = useTheme()
-const { musicVideos, addMusicVideo, updateMusicVideo, removeMusicVideo, init } =
-  useMusicVideos()
+const { designProjects, addDesignProject, updateDesignProject, removeDesignProject, init } =
+  useDesignProjects()
 
 init()
 
@@ -265,10 +283,9 @@ const mode = ref('list')
 const isNew = ref(false)
 const draft = ref({})
 
-/* ---------------- STAGED ---------------- */
-
 const pendingThumbnail = ref(null)
-const pendingStills = ref([])
+const pendingHero = ref(null)
+const pendingGallery = ref([])
 
 const thumbnailPreview = computed(() =>
   pendingThumbnail.value
@@ -276,36 +293,45 @@ const thumbnailPreview = computed(() =>
     : draft.value.thumbnail || null
 )
 
+const heroPreview = computed(() =>
+  pendingHero.value
+    ? pendingHero.value.previewUrl
+    : draft.value.heroImage || null
+)
+
 const displayedGallery = computed(() => [
   ...(draft.value.gallery || []).map(url => ({ url, pending: false })),
-  ...pendingStills.value.map(p => ({ url: p.previewUrl, pending: true }))
+  ...pendingGallery.value.map(p => ({ url: p.previewUrl, pending: true }))
 ])
 
 function cleanupPending() {
   if (pendingThumbnail.value)
     URL.revokeObjectURL(pendingThumbnail.value.previewUrl)
+  if (pendingHero.value)
+    URL.revokeObjectURL(pendingHero.value.previewUrl)
 
-  pendingStills.value.forEach(p =>
+  pendingGallery.value.forEach(p =>
     URL.revokeObjectURL(p.previewUrl)
   )
 
   pendingThumbnail.value = null
-  pendingStills.value = []
+  pendingHero.value = null
+  pendingGallery.value = []
 }
 
-/* ---------------- CRUD ---------------- */
-
-function createVideo() {
+function createProject() {
   cleanupPending()
 
   draft.value = {
-    artist: '',
+    client: '',
     title: '',
     slug: '',
     year: '',
-    videoUrl: '',
     description: '',
+    textMiddle: '',
+    textFooter: '',
     thumbnail: null,
+    heroImage: null,
     gallery: [],
     credits: []
   }
@@ -314,15 +340,17 @@ function createVideo() {
   mode.value = 'edit'
 }
 
-function editVideo(slug) {
+function editProject(slug) {
   cleanupPending()
 
-  const v = musicVideos.value.find(v => v.slug === slug)
-  if (!v) return
+  const p = designProjects.value.find(x => x.slug === slug)
+  if (!p) return
 
   draft.value = {
-    ...JSON.parse(JSON.stringify(v)),
-    gallery: (v.gallery || []).map(img =>
+    ...JSON.parse(JSON.stringify(p)),
+    textMiddle: p.textMiddle ?? '',
+    textFooter: p.textFooter ?? '',
+    gallery: (p.gallery || []).map(img =>
       typeof img === 'string' ? img : img.url
     )
   }
@@ -336,11 +364,9 @@ function cancelEdit() {
   mode.value = 'list'
 }
 
-/* ---------------- DELETE CONFIRM ---------------- */
-
-async function deleteVideoConfirm(slug) {
+async function deleteProjectConfirm(slug) {
   const ok = await dialog.openConfirm({
-    title: 'Delete music video?',
+    title: 'Delete design project?',
     message: 'This action cannot be undone.',
     confirmText: 'Delete',
     cancelText: 'Cancel',
@@ -350,19 +376,17 @@ async function deleteVideoConfirm(slug) {
   if (!ok) return
 
   try {
-    await removeMusicVideo(slug)
+    await removeDesignProject(slug)
     toast('Deleted')
   } catch {
     toast('Delete failed', { duration: 2400 })
   }
 }
 
-/* ---------------- UPLOAD ---------------- */
-
 async function uploadFile(file) {
   const form = new FormData()
   form.append('file', file)
-  form.append('section', 'music-videos')
+  form.append('section', 'design-projects')
   form.append('slug', draft.value.slug)
 
   const res = await fetch(`${API_BASE}/upload`, {
@@ -376,8 +400,6 @@ async function uploadFile(file) {
   const data = await res.json()
   return data.url
 }
-
-/* ---------------- FILE SELECT ---------------- */
 
 function onThumbnailSelected(e) {
   const file = e.target.files?.[0]
@@ -394,9 +416,24 @@ function onThumbnailSelected(e) {
   e.target.value = ''
 }
 
-function onStillsSelected(e) {
+function onHeroSelected(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+
+  if (pendingHero.value)
+    URL.revokeObjectURL(pendingHero.value.previewUrl)
+
+  pendingHero.value = {
+    file,
+    previewUrl: URL.createObjectURL(file)
+  }
+
+  e.target.value = ''
+}
+
+function onGallerySelected(e) {
   for (const file of Array.from(e.target.files || [])) {
-    pendingStills.value.push({
+    pendingGallery.value.push({
       file,
       previewUrl: URL.createObjectURL(file)
     })
@@ -404,11 +441,9 @@ function onStillsSelected(e) {
   e.target.value = ''
 }
 
-/* ---------------- DELETE IMAGE ---------------- */
-
 async function removeImage(index, img) {
   if (img.pending) {
-    pendingStills.value.splice(
+    pendingGallery.value.splice(
       index - (draft.value.gallery?.length || 0),
       1
     )
@@ -432,7 +467,10 @@ function removeThumbnail() {
   else draft.value.thumbnail = null
 }
 
-/* ---------------- SAVE ---------------- */
+function removeHero() {
+  if (pendingHero.value) pendingHero.value = null
+  else draft.value.heroImage = null
+}
 
 async function save() {
   try {
@@ -440,8 +478,12 @@ async function save() {
       draft.value.thumbnail = await uploadFile(pendingThumbnail.value.file)
     }
 
-    if (pendingStills.value.length) {
-      for (const p of pendingStills.value) {
+    if (pendingHero.value) {
+      draft.value.heroImage = await uploadFile(pendingHero.value.file)
+    }
+
+    if (pendingGallery.value.length) {
+      for (const p of pendingGallery.value) {
         draft.value.gallery.push(await uploadFile(p.file))
       }
     }
@@ -449,19 +491,21 @@ async function save() {
     cleanupPending()
 
     const payload = {
-      artist: draft.value.artist,
+      client: draft.value.client,
       title: draft.value.title,
       slug: draft.value.slug,
       year: draft.value.year,
-      video_url: draft.value.videoUrl,
-      description: draft.value.description,
       thumbnail: draft.value.thumbnail,
+      hero_image: draft.value.heroImage,
+      description: draft.value.description,
+      text_middle: draft.value.textMiddle,
+      text_footer: draft.value.textFooter,
       credits: draft.value.credits,
       gallery: draft.value.gallery
     }
 
-    if (isNew.value) await addMusicVideo(payload)
-    else await updateMusicVideo(draft.value.slug, payload)
+    if (isNew.value) await addDesignProject(payload)
+    else await updateDesignProject(draft.value.slug, payload)
 
     toast('Saved')
     mode.value = 'list'
@@ -470,15 +514,16 @@ async function save() {
   }
 }
 
-/* ---------------- SORTABLE ---------------- */
-
 const galleryEl = ref(null)
 let sortable = null
 
 watch(() => mode.value, v => {
   if (v === 'edit') {
     setTimeout(() => {
-      if (sortable) sortable.destroy()
+      if (sortable) {
+        sortable.destroy()
+        sortable = null
+      }
 
       sortable = Sortable.create(galleryEl.value, {
         animation: 150,
@@ -493,10 +538,11 @@ watch(() => mode.value, v => {
         }
       })
     })
+  } else if (sortable) {
+    sortable.destroy()
+    sortable = null
   }
 })
-
-/* ---------------- KEYBOARD ---------------- */
 
 function onKeydown(e) {
   const inEdit = mode.value === 'edit'
