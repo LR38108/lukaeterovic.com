@@ -11,22 +11,22 @@
         <div class="grid grid-cols-1 gap-0">
           <CategoryCard
             title="FILM"
-            image="/assets/images/Film.jpeg"
+            image-base="/assets/images/Film"
             route="/film"
           />
           <CategoryCard
             title="PHOTOGRAPHY"
-            image="/assets/images/Photography.jpeg"
+            image-base="/assets/images/Photography"
             route="/photography"
           />
           <CategoryCard
             title="MUSIC VIDEOS"
-            image="/assets/images/MusicVideo.jpg"
+            image-base="/assets/images/MusicVideo"
             route="/music-videos"
           />
           <CategoryCard
             title="DESIGN"
-            image="/assets/images/Design.jpg"
+            image-base="/assets/images/Design"
             route="/design"
           />
         </div>

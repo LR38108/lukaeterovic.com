@@ -8,7 +8,7 @@
           Coffee & Machines
         </h1>
         <p class="opacity-70 text-lg">
-          Notes on film, photography, process, and work.
+          Journal of a journey. Grab a cup of coffee and enjoy.
         </p>
       </header>
 

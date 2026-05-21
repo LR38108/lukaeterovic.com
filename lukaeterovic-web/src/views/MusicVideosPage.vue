@@ -8,7 +8,7 @@
           MUSIC VIDEOS
         </h1>
         <p class="music-videos-page-intro text-base md:text-lg opacity-70 max-w-2xl leading-relaxed">
-          Selected works exploring sound, rhythm, and visual identity.
+          Shot and/or directed music film by Luka Eterović.
         </p>
       </header>
 

@@ -18,7 +18,9 @@
         </div>
 
         <h2 class="about-page-subtitle text-xl md:text-2xl font-bold uppercase text-center mb-8 tracking-[0.06em]">
-          HELLO WORLD. I AM LUKA.
+          Hi there!
+          waves at the unknown web viewer
+          Welcome to my official website (finally).
         </h2>
 
         <div
@@ -26,14 +28,18 @@
           :class="isLight ? 'text-black/85' : 'text-white/90'"
         >
           <p>
-            A filmmaker, photographer, videographer, designer, writer and creative freelancer
-            based in the sunny city of Split, Croatia.
+            My name is Luka Eterović, and I’m an award-winning filmmaker, photographer, videographer, designer, and writer—a creative freelancer currently based in the sunny city of Split, Croatia.
           </p>
           <p>
-            I work across narrative film, music videos, photography, and visual design — with a
-            focus on craft, clarity, and images that stay with you. Whether we’re building a
-            campaign, a film, or a still frame, the goal is always the same: professional results,
-            class, and aesthetics that hold up over time.
+            Born on Brač and made in Split, I’ve been pursuing my creative vision since I was a kid my old Nokia cameras in my backyard.
+
+After earning my MA in Film, Animation, and New Media from the Arts Academy in Split in 2023, I’ve been working across creative disciplines, delivering high-end, professional work for artists and clients.
+
+From narrative films and music videos to lifestyle photography, commercials, and advertising, I’m always open to exploring new visual and creative challenges.
+
+If you’d like to collaborate or hire me, feel free to reach out via email to discuss a project or request a quote.
+
+Thanks for stopping by—and enjoy my work :)
           </p>
         </div>
 
@@ -46,8 +52,8 @@
             Contact me
           </RouterLink>
           <a
-            href="/assets/cv.pdf"
-            download
+            :href="cvUrl"
+            download="Luka-Eterovic-CV.pdf"
             class="about-btn inline-flex justify-center items-center gap-2 px-8 py-3 text-sm md:text-base font-semibold tracking-normal text-center transition-opacity hover:opacity-90 rounded-none"
             :class="isLight ? 'bg-black text-white' : 'bg-white text-black'"
           >
@@ -108,6 +114,7 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useTheme } from '@/composables/useTheme.js'
+import cvUrl from '@/assets/cv.pdf'
 
 const { isLight } = useTheme()
 

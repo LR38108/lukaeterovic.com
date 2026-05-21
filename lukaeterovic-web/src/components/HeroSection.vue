@@ -10,6 +10,8 @@
       playsinline
       webkit-playsinline
       preload="auto"
+      @loadeddata="markVideoReady"
+      @canplay="markVideoReady"
       @loadedmetadata="onLoadedMetadata"
     >
       <source :src="heroVideoSrc" type="video/mp4" />
@@ -19,10 +21,10 @@
       class="absolute inset-0 z-10 flex flex-col justify-end p-6 md:p-16 lg:p-24 text-white bg-black/50"
     >
       <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight">
-        Insert some introduction words etc.
+        OFFICIAL LUKA ETEROVIĆ WEBSITE
       </h1>
       <p class="text-sm md:text-lg mt-2">
-        (ovo je header koji je zapravo video u kojem se vrti mali showreel rada)
+        Welcome to selected work showcase
       </p>
     </div>
   </section>
@@ -38,6 +40,13 @@ const posterUrl = ref('')
 
 let posterCaptured = false
 let metadataHandled = false
+let videoReadyEmitted = false
+
+function markVideoReady() {
+  if (videoReadyEmitted) return
+  videoReadyEmitted = true
+  window.dispatchEvent(new CustomEvent('home-hero-video-ready'))
+}
 
 function tryPlay() {
   const el = videoRef.value
@@ -85,6 +94,7 @@ function onLoadedMetadata() {
   const afterSeek = () => {
     video.removeEventListener('seeked', afterSeek)
     capturePosterFromVideo()
+    markVideoReady()
     tryPlay()
   }
 
@@ -98,6 +108,7 @@ function onLoadedMetadata() {
   setTimeout(() => {
     if (!posterCaptured) {
       capturePosterFromVideo()
+      markVideoReady()
       tryPlay()
     }
   }, 300)

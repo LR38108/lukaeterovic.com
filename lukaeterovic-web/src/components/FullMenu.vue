@@ -10,7 +10,7 @@
         <button type="button" class="w-7 h-7 flex items-center justify-center cursor-pointer" aria-label="Close menu" @click="$emit('close')">
           <img :src="chevron" class="w-7 h-7" alt="" />
         </button>
-        <img :src="logo" class="h-[1.4rem]" alt="Logo" />
+        <img :src="logo" class="h-6 md:h-8" alt="Logo" />
       </div>
 
       <!-- MENU ITEMS -->

@@ -7,12 +7,17 @@
            overflow-hidden cursor-pointer group"
     @click="navigate"
   >
-    <!-- Background image layer (THE FIX: background-size: cover) -->
-    <div
-      class="absolute inset-0"
-      :style="bgStyle"
-      aria-hidden="true"
-    ></div>
+    <picture class="absolute inset-0 block">
+      <source :srcset="avifSrc" type="image/avif" />
+      <source :srcset="webpSrc" type="image/webp" />
+      <img
+        :src="jpegSrc"
+        :alt="title"
+        loading="lazy"
+        decoding="async"
+        class="w-full h-full object-cover"
+      />
+    </picture>
 
     <!-- Gradient overlay -->
     <div
@@ -42,7 +47,7 @@ import { useRouter } from 'vue-router'
 
 const props = defineProps({
   title: String,
-  image: String,
+  imageBase: String,
   route: String
 })
 
@@ -50,6 +55,10 @@ const router = useRouter()
 const navigate = () => {
   if (props.route) router.push(props.route)
 }
+
+const avifSrc = computed(() => `${props.imageBase}.avif`)
+const webpSrc = computed(() => `${props.imageBase}.webp`)
+const jpegSrc = computed(() => `${props.imageBase}.jpg`)
 
 const rootEl = ref(null)
 const titleVisible = ref(false)
@@ -98,11 +107,4 @@ onBeforeUnmount(() => {
   if (observer && rootEl.value) observer.unobserve(rootEl.value)
   if (observer) observer.disconnect()
 })
-
-const bgStyle = computed(() => ({
-  backgroundImage: `url(${props.image})`,
-  backgroundSize: 'cover',
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center center'
-}))
 </script>

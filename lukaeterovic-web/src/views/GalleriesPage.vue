@@ -9,7 +9,14 @@
           PHOTOGRAPHY
         </h1>
         <p class="galleries-page-intro text-base md:text-lg opacity-70 max-w-2xl leading-relaxed">
-          Curated photographic works — places, moments, and visual essays.
+          Curated photographic works of places, people, moments and emotions.
+          <br>
+          <br>
+          “I shoot people not to kill them - but make them feel alive”.
+          <br>
+          <br>
+          - Luka Eterović
+
         </p>
       </header>
 

@@ -8,7 +8,7 @@
           FILM
         </h1>
         <p class="film-page-intro text-base md:text-lg opacity-70 max-w-2xl leading-relaxed">
-          A selection of narrative and documentary work. Each project is a chance to explore story, form, and collaboration.
+          A selection of Award Wining narrative and experimental films, from student shorts to professional features - directed by Luka Eterović.
         </p>
       </header>
 

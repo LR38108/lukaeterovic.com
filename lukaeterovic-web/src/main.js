@@ -19,6 +19,42 @@ function hideInitialLoader() {
   setTimeout(remove, 500)
 }
 
+const HOME_HERO_READY_KEY = 'homeHeroVideoReady'
+
+function shouldWaitForHomeHero() {
+  if (router.currentRoute.value.name !== 'Home') return false
+  try {
+    return sessionStorage.getItem(HOME_HERO_READY_KEY) !== '1'
+  } catch (_) {
+    return true
+  }
+}
+
+function waitForHomeHeroVideo() {
+  if (!shouldWaitForHomeHero()) return Promise.resolve()
+
+  setLoaderProgress(0.9)
+
+  return new Promise((resolve) => {
+    let done = false
+
+    const finish = () => {
+      if (done) return
+      done = true
+      window.removeEventListener('home-hero-video-ready', finish)
+      try {
+        sessionStorage.setItem(HOME_HERO_READY_KEY, '1')
+      } catch (_) {
+        /* sessionStorage may be unavailable in private browsing */
+      }
+      resolve()
+    }
+
+    window.addEventListener('home-hero-video-ready', finish, { once: true })
+    setTimeout(finish, 8000)
+  })
+}
+
 const app = createApp(App)
 app.use(router)
 
@@ -37,6 +73,8 @@ async function boot() {
       requestAnimationFrame(resolve)
     })
   })
+
+  await waitForHomeHeroVideo()
 
   setLoaderProgress(1)
   await new Promise((r) => setTimeout(r, 140))
