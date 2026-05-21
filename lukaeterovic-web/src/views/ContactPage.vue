@@ -32,11 +32,11 @@
           class="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-lg mx-auto"
         >
           <a
-            href="mailto:lukaeterovic@live.com"
+            href="mailto:hello@lukaeterovic.com"
             class="contact-cta-btn flex-1 min-w-0 inline-flex items-center justify-center gap-0 px-5 py-3.5 text-sm md:text-base font-semibold no-underline transition-opacity hover:opacity-90 tracking-normal rounded-none"
             :class="ctaBtnClass"
           >
-            lukaeterovic<span class="contact-email-at">@</span>live.com
+            hello<span class="contact-email-at">@</span>lukaeterovic.com
           </a>
 
           <a
