@@ -12,13 +12,14 @@
         </p>
       </header>
 
-      <!-- GRID: 2 per row -->
+      <!-- GRID: 2 per row, single item spans full width -->
       <div class="grid grid-cols-2 gap-x-6 gap-y-12 sm:gap-x-10 md:gap-x-14 md:gap-y-14">
         <RouterLink
           v-for="mv in musicVideos"
           :key="mv.slug"
           :to="`/music-videos/${mv.slug}`"
           class="group block"
+          :class="musicVideos.length === 1 ? 'col-span-2' : ''"
         >
           <!-- COVER -->
           <div class="relative aspect-video bg-black/5 overflow-hidden">
@@ -28,14 +29,9 @@
               :alt="mv.title"
               class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             />
-            <div class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              <div class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/90 flex items-center justify-center">
-                <div class="ml-1 w-0 h-0 border-t-[6px] border-b-[6px] border-l-[10px] md:border-t-[8px] md:border-b-[8px] md:border-l-[12px] border-t-transparent border-b-transparent border-l-black" />
-              </div>
-            </div>
           </div>
           <!-- TITLE (below, left — all caps, condensed) -->
-          <h2 class="music-videos-card-title mt-4 text-left text-base md:text-lg font-bold uppercase tracking-[0.06em] leading-tight group-hover:underline">
+          <h2 class="music-videos-card-title mt-4 text-left text-base md:text-lg font-bold uppercase tracking-[0.06em] leading-tight">
             {{ mv.title }}
           </h2>
         </RouterLink>

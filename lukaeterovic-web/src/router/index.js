@@ -38,7 +38,17 @@ const routes = [
   },
   {
     path: '/design/:slug',
+    name: 'DesignDetail',
     component: () => import('@/views/DesignDetailPage.vue')
+  },
+  {
+    path: '/commercial-promo',
+    component: () => import('@/views/CommercialPromoPage.vue')
+  },
+  {
+    path: '/commercial-promo/:slug',
+    name: 'CommercialPromoDetail',
+    component: () => import('@/views/CommercialPromoDetailPage.vue')
   },
   {
     path: '/blog',
@@ -77,6 +87,10 @@ const routes = [
       {
         path: 'design',
         component: () => import('@/views/admin/AdminDesignProjects.vue')
+      },
+      {
+        path: 'commercial-promo',
+        component: () => import('@/views/admin/AdminCommercialProjects.vue')
       },
       {
         path: 'blog',

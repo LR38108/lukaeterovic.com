@@ -4,13 +4,13 @@
     <!-- HERO IMAGE -->
     <div
       v-if="post.cover_image"
-      class="w-full mb-16"
+      class="w-full mb-10"
     >
       <div class="max-w-5xl mx-auto px-4">
         <img
           :src="post.cover_image"
           :alt="post.title"
-          class="w-full max-h-[70vh] object-cover rounded"
+          class="w-full max-h-[70vh] object-cover"
           loading="lazy"
         />
       </div>
@@ -18,22 +18,22 @@
 
     <!-- CONTENT -->
     <div class="max-w-3xl mx-auto px-4 text-left">
-      <header class="mb-12 text-left">
-        <h1 class="blog-detail-title text-4xl font-bold mb-4">
+      <header class="mb-5 text-left">
+        <h1 class="blog-detail-title text-4xl font-bold mb-2">
           {{ post.title }}
         </h1>
 
-        <div class="blog-detail-date text-sm opacity-50">
-          {{ new Date(post.created_at).toDateString() }}
+        <div class="blog-detail-date text-sm opacity-50 mb-3">
+          {{ formatDate(post.created_at) }}
         </div>
       </header>
 
-      <p v-if="post.excerpt" class="blog-detail-excerpt text-lg opacity-80 mb-12 text-left">
+      <p v-if="post.excerpt" class="blog-detail-excerpt text-lg opacity-80 mb-5 text-left">
         {{ post.excerpt }}
       </p>
 
       <div
-        class="blog-detail-body w-full text-left rounded"
+        class="blog-detail-body w-full text-left"
         v-html="post.content"
       />
     </div>
@@ -61,6 +61,15 @@ onMounted(async () => {
   )
   if (res.ok) post.value = await res.json()
 })
+
+function formatDate(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = String(date.getFullYear()).slice(-2)
+  return `${day}.${month}.${year}`
+}
 </script>
 
 <style scoped>
@@ -90,5 +99,37 @@ onMounted(async () => {
 .blog-detail-body :deep(h4),
 .blog-detail-body :deep(figcaption) {
   text-align: left;
+}
+
+.blog-detail-body :deep(.blog-image) {
+  margin: 2.5rem 0;
+}
+
+.blog-detail-body :deep(.blog-image img),
+.blog-detail-body :deep(.blog-image-grid img) {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.blog-detail-body :deep(.blog-image-grid) {
+  display: grid;
+  gap: 1rem;
+  margin: 2.5rem 0;
+}
+
+.blog-detail-body :deep(.blog-image-grid--2) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.blog-detail-body :deep(.blog-image-grid--3) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 640px) {
+  .blog-detail-body :deep(.blog-image-grid--2),
+  .blog-detail-body :deep(.blog-image-grid--3) {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

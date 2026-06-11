@@ -27,6 +27,7 @@ const IMAGES = {
   Photography: ['Photography.jpeg', 'Photography.jpg'],
   MusicVideo: ['MusicVideo.jpg', 'MusicVideo.jpeg'],
   Design: ['Design.jpg', 'Design.jpeg'],
+  CommercialPromo: ['CommercialPromo.jpg', 'CommercialPromo.jpeg', 'CommercialPromo.png'],
 }
 
 function findSource(base, candidates) {

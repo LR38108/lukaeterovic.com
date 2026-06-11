@@ -175,9 +175,10 @@
       label: 'WORK',
       children: [
         { label: 'FILM', to: '/film' },
-        { label: 'MUSIC VIDEO', to: '/music-videos' },
+        { label: 'MUSIC VIDEOS', to: '/music-videos' },
         { label: 'PHOTOGRAPHY', to: '/photography' },
-        { label: 'DESIGN', to: '/design' }
+        { label: 'DESIGN', to: '/design' },
+        { label: 'COMMERCIAL & PROMO', to: '/commercial-promo' }
       ]
     },
     { label: 'ABOUT', to: '/about' },

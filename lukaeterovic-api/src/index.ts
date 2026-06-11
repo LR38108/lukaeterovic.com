@@ -81,6 +81,18 @@ type DesignProjectPayload = {
   gallery?: any[]
 }
 
+type CommercialProjectPayload = {
+  slug: string
+  title: string
+  client?: string
+  subtitle?: string
+  about?: string
+  thumbnail?: string | null
+  hero_image?: string | null
+  credits?: any[]
+  gallery?: any[]
+}
+
 type BlogPostPayload = {
   slug: string
   title: string
@@ -192,6 +204,23 @@ export default {
 
       if (url.pathname.startsWith('/design-projects/') && method === 'DELETE')
         return deleteDesignProject(url.pathname.split('/')[2], env)
+
+      /* ===== COMMERCIAL PROJECTS ===== */
+
+      if (url.pathname === '/commercial-projects' && method === 'GET')
+        return getCommercialProjects(env)
+
+      if (url.pathname.startsWith('/commercial-projects/') && method === 'GET')
+        return getCommercialProject(url.pathname.split('/')[2], env)
+
+      if (url.pathname === '/commercial-projects' && method === 'POST')
+        return createCommercialProject(request, env)
+
+      if (url.pathname.startsWith('/commercial-projects/') && method === 'PUT')
+        return updateCommercialProject(url.pathname.split('/')[2], request, env)
+
+      if (url.pathname.startsWith('/commercial-projects/') && method === 'DELETE')
+        return deleteCommercialProject(url.pathname.split('/')[2], env)
 
       /* ===== BLOG ===== */
 
@@ -607,13 +636,14 @@ async function updateDesignProject(slug: string, request: Request, env: Env) {
 
   await env.DB.prepare(`
     UPDATE design_projects SET
-      title = ?, client = ?, year = ?,
+      slug = ?, title = ?, client = ?, year = ?,
       thumbnail = ?, hero_image = ?, description = ?,
       text_middle = ?, text_footer = ?,
       credits = ?, gallery = ?,
       updated_at = datetime('now')
     WHERE slug = ?
   `).bind(
+    data.slug,
     data.title ?? '',
     data.client ?? '',
     data.year ?? '',
@@ -632,6 +662,97 @@ async function updateDesignProject(slug: string, request: Request, env: Env) {
 
 async function deleteDesignProject(slug: string, env: Env) {
   await env.DB.prepare(`DELETE FROM design_projects WHERE slug = ?`).bind(slug).run()
+  return json({ ok: true })
+}
+
+/* =====================
+   COMMERCIAL PROJECTS
+===================== */
+
+function hydrateCommercialProject(row: any) {
+  return {
+    ...row,
+    subtitle: row.subtitle ?? '',
+    about: row.about ?? row.description ?? '',
+    thumbnail: row.thumbnail || null,
+    hero_image: row.hero_image || row.thumbnail || null,
+    credits: safeJSON(row.credits, []),
+    gallery: normalizeImages(safeJSON(row.gallery, []))
+  }
+}
+
+async function getCommercialProjects(env: Env) {
+  const { results } = await env.DB
+    .prepare(`SELECT * FROM commercial_projects ORDER BY created_at DESC`)
+    .all()
+
+  return json(results.map(hydrateCommercialProject))
+}
+
+async function getCommercialProject(slug: string, env: Env) {
+  const row = await env.DB
+    .prepare(`SELECT * FROM commercial_projects WHERE slug = ?`)
+    .bind(slug)
+    .first()
+
+  if (!row) return json({ error: 'Not found' }, 404)
+  return json(hydrateCommercialProject(row))
+}
+
+async function createCommercialProject(request: Request, env: Env) {
+  const data = (await request.json()) as CommercialProjectPayload
+
+  await env.DB.prepare(`
+    INSERT INTO commercial_projects (
+      slug, title, client, subtitle,
+      thumbnail, hero_image, about,
+      credits, gallery
+    ) VALUES (
+      ?,?,?,?,?,?,?,?,?
+    )
+  `).bind(
+    data.slug,
+    data.title ?? '',
+    data.client ?? '',
+    data.subtitle ?? '',
+    data.thumbnail ?? null,
+    data.hero_image ?? null,
+    data.about ?? '',
+    JSON.stringify(data.credits || []),
+    JSON.stringify(normalizeImages(data.gallery || []))
+  ).run()
+
+  return json({ ok: true })
+}
+
+async function updateCommercialProject(slug: string, request: Request, env: Env) {
+  const data = (await request.json()) as CommercialProjectPayload
+
+  await env.DB.prepare(`
+    UPDATE commercial_projects SET
+      slug = ?, title = ?, client = ?, subtitle = ?,
+      thumbnail = ?, hero_image = ?, about = ?,
+      credits = ?, gallery = ?,
+      updated_at = datetime('now')
+    WHERE slug = ?
+  `).bind(
+    data.slug,
+    data.title ?? '',
+    data.client ?? '',
+    data.subtitle ?? '',
+    data.thumbnail ?? null,
+    data.hero_image ?? null,
+    data.about ?? '',
+    JSON.stringify(data.credits || []),
+    JSON.stringify(normalizeImages(data.gallery || [])),
+    slug
+  ).run()
+
+  return json({ ok: true })
+}
+
+async function deleteCommercialProject(slug: string, env: Env) {
+  await env.DB.prepare(`DELETE FROM commercial_projects WHERE slug = ?`).bind(slug).run()
   return json({ ok: true })
 }
 

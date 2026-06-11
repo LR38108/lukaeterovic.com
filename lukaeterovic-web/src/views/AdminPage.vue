@@ -154,6 +154,7 @@ const links = [
   { to: '/admin/galleries', label: 'Galleries' },
   { to: '/admin/music-videos', label: 'Music Videos' },
   { to: '/admin/design', label: 'Design' },
+  { to: '/admin/commercial-promo', label: 'Commercial & Promo' },
   { to: '/admin/blog', label: 'Blog' }
 ]
 

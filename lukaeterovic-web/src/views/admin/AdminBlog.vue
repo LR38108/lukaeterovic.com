@@ -110,15 +110,81 @@
       <section class="section">
         <h3 class="section-title">Content</h3>
 
-        <label class="field">
-          <span class="label">Markdown / HTML</span>
-          <textarea
-            v-model="draft.content"
-            class="control textarea"
-            :class="inputClass"
-            rows="14"
+        <div v-if="!contentBlocks.length" class="text-sm opacity-50">
+          Add a paragraph or image to start building the post.
+        </div>
+
+        <div v-else class="space-y-8">
+          <div
+            v-for="(block, i) in contentBlocks"
+            :key="block.id"
+            class="content-block border p-4"
+            :class="previewClass"
+          >
+            <div class="mb-3 flex items-center justify-between gap-4">
+              <span class="label mb-0">
+                {{ block.type === 'image' ? 'Image' : 'Paragraph' }}
+              </span>
+
+              <div class="flex gap-3 text-xs uppercase tracking-widest">
+                <button type="button" class="opacity-50 hover:opacity-100" :disabled="i === 0" @click="moveContentBlock(i, -1)">
+                  Up
+                </button>
+                <button type="button" class="opacity-50 hover:opacity-100" :disabled="i === contentBlocks.length - 1" @click="moveContentBlock(i, 1)">
+                  Down
+                </button>
+                <button type="button" class="opacity-50 hover:opacity-100" @click="removeContentBlock(i)">
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <textarea
+              v-if="block.type === 'paragraph'"
+              v-model="block.text"
+              class="control textarea"
+              :class="inputClass"
+              rows="5"
+              placeholder="Write paragraph text..."
+            />
+
+            <div v-else-if="block.type === 'image'">
+              <img :src="block.url" class="w-full object-cover" alt="" />
+              <input
+                v-model="block.alt"
+                class="control mt-3"
+                :class="inputClass"
+                placeholder="Alt text (optional)"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <button
+            type="button"
+            class="insert-btn"
+            :class="insertButtonClass"
+            @click="addParagraphBlock"
+          >
+            Add paragraph
+          </button>
+          <button
+            type="button"
+            class="insert-btn"
+            :class="insertButtonClass"
+            @click="selectContentImage"
+          >
+            Add image
+          </button>
+          <input
+            ref="contentImageInput"
+            type="file"
+            accept="image/*"
+            class="hidden"
+            @change="onContentImageSelected"
           />
-        </label>
+        </div>
       </section>
 
       <!-- COVER -->
@@ -184,6 +250,16 @@ const inputClass = computed(() =>
     : 'border-white/20 focus:border-white text-white'
 )
 
+const insertButtonClass = computed(() =>
+  isLight.value
+    ? 'border-black text-black hover:bg-black hover:text-white'
+    : 'border-white text-white hover:bg-white hover:text-black'
+)
+
+const previewClass = computed(() =>
+  isLight.value ? 'border-black/15' : 'border-white/15'
+)
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://lukaeterovic-api.radan-luka.workers.dev'
 const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN
 
@@ -223,6 +299,8 @@ watch(() => draft.value.title, title => {
 /* ---------------- STAGED COVER ---------------- */
 
 const pendingCover = ref(null)
+const contentImageInput = ref(null)
+const contentBlocks = ref([])
 
 const coverPreview = computed(() =>
   pendingCover.value
@@ -251,6 +329,7 @@ function createPost() {
     cover_image: null,
     published: false
   }
+  contentBlocks.value = []
 
   isNew.value = true
   mode.value = 'edit'
@@ -264,6 +343,7 @@ function editPost(slug) {
     ...JSON.parse(JSON.stringify(p)),
     published: Boolean(p.published)
   }
+  contentBlocks.value = parseContentBlocks(p.content || '')
 
   originalSlug.value = p.slug
   slugTouched.value = true
@@ -273,6 +353,7 @@ function editPost(slug) {
 
 function cancelEdit() {
   cleanupPending()
+  contentBlocks.value = []
   mode.value = 'list'
 }
 
@@ -320,6 +401,137 @@ async function uploadFile(file) {
   return data.url
 }
 
+function addParagraphBlock() {
+  contentBlocks.value.push(createParagraphBlock())
+}
+
+async function selectContentImage() {
+  draft.value.slug = draft.value.slug || slugify(draft.value.title)
+  if (!draft.value.slug) {
+    toast('Add a title before uploading images', { duration: 2400 })
+    return
+  }
+
+  if (contentImageInput.value) contentImageInput.value.value = ''
+  contentImageInput.value?.click()
+}
+
+async function onContentImageSelected(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+
+  try {
+    const url = await uploadFile(file)
+    contentBlocks.value.push(createImageBlock(url))
+    toast('Image added')
+  } catch {
+    toast('Image upload failed', { duration: 2400 })
+  } finally {
+    e.target.value = ''
+  }
+}
+
+function moveContentBlock(index, direction) {
+  const nextIndex = index + direction
+  if (nextIndex < 0 || nextIndex >= contentBlocks.value.length) return
+
+  const blocks = [...contentBlocks.value]
+  const [block] = blocks.splice(index, 1)
+  blocks.splice(nextIndex, 0, block)
+  contentBlocks.value = blocks
+}
+
+function removeContentBlock(index) {
+  contentBlocks.value.splice(index, 1)
+}
+
+function serializeContentBlocks() {
+  return contentBlocks.value
+    .map(block => {
+      if (block.type === 'image') {
+        return `<figure class="blog-image">\n  <img src="${escapeHtml(block.url)}" alt="${escapeHtml(block.alt || '')}" />\n</figure>`
+      }
+
+      const text = String(block.text || '').trim()
+      if (!text) return ''
+      return `<p>${escapeHtml(text).replace(/\n/g, '<br>')}</p>`
+    })
+    .filter(Boolean)
+    .join('\n\n')
+}
+
+function parseContentBlocks(content) {
+  if (!content) return []
+
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(`<main>${content}</main>`, 'text/html')
+  const root = doc.querySelector('main')
+  if (!root) return []
+
+  const blocks = []
+
+  root.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent?.trim()
+      if (text) blocks.push(createParagraphBlock(text))
+      return
+    }
+
+    if (!(node instanceof HTMLElement)) return
+
+    if (node.matches('figure.blog-image')) {
+      const img = node.querySelector('img')
+      if (img?.src) {
+        blocks.push(createImageBlock(img.getAttribute('src') || img.src, img.getAttribute('alt') || ''))
+      }
+      return
+    }
+
+    if (node.matches('.blog-image-grid')) {
+      node.querySelectorAll('img').forEach(img => {
+        blocks.push(createImageBlock(img.getAttribute('src') || img.src, img.getAttribute('alt') || ''))
+      })
+      return
+    }
+
+    if (node.tagName === 'P') {
+      blocks.push(createParagraphBlock(node.innerHTML.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '').trim()))
+      return
+    }
+
+    const text = node.textContent?.trim()
+    if (text) blocks.push(createParagraphBlock(text))
+  })
+
+  return blocks
+}
+
+function createParagraphBlock(text = '') {
+  return {
+    id: crypto.randomUUID(),
+    type: 'paragraph',
+    text
+  }
+}
+
+function createImageBlock(url, alt = '') {
+  return {
+    id: crypto.randomUUID(),
+    type: 'image',
+    url,
+    alt
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 /* ---------------- FILE SELECT ---------------- */
 
 function onCoverSelected(e) {
@@ -346,6 +558,8 @@ function removeCover() {
 
 async function save() {
   try {
+    draft.value.content = serializeContentBlocks()
+
     if (pendingCover.value) {
       draft.value.cover_image = await uploadFile(pendingCover.value.file)
     }
@@ -442,5 +656,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
 .file {
   opacity: 0.7;
+}
+
+.insert-btn {
+  border-width: 1px;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.content-block {
+  transition: border-color 0.2s ease;
 }
 </style>

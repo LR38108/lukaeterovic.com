@@ -19,7 +19,6 @@
 
         <h2 class="about-page-subtitle text-xl md:text-2xl font-bold uppercase text-center mb-8 tracking-[0.06em]">
           Hi there!
-          waves at the unknown web viewer
           Welcome to my official website (finally).
         </h2>
 
@@ -35,7 +34,7 @@
 
 After earning my MA in Film, Animation, and New Media from the Arts Academy in Split in 2023, I’ve been working across creative disciplines, delivering high-end, professional work for artists and clients.
 
-From narrative films and music videos to lifestyle photography, commercials, and advertising, I’m always open to exploring new visual and creative challenges.
+</p><p>From narrative films and music videos to lifestyle photography, commercials, and advertising, I’m always open to exploring new visual and creative challenges.
 
 If you’d like to collaborate or hire me, feel free to reach out via email to discuss a project or request a quote.
 

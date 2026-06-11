@@ -8,24 +8,25 @@
         </h1>
       </header>
 
-      <div class="max-w-2xl mx-auto text-center">
-        <h2 class="contact-page-subtitle text-2xl md:text-3xl font-bold uppercase mb-8 md:mb-10 leading-tight">
-          LET'S WORK TOGETHER
-        </h2>
-
+      <div class="max-w-2xl mx-auto text-left">
         <div
           class="contact-page-body text-base md:text-lg leading-relaxed space-y-4"
           :class="isLight ? 'text-black/80' : 'text-white/90'"
         >
-          <p>You like what you see and want to collaborate?</p>
+          <p>
+            You like what you see and want to collaborate? Let's work together!
+          </p>
           <p>
             Get my recognizable signature on something that will last a lifetime (and basically,
             forever).
           </p>
-          <p>Whether it's photography, video, film, or design,</p>
-          <p>I guarantee professional results, class, and top-notch aesthetics.</p>
-          <p>Feel free to reach out and I'll send you a quote.</p>
-          <p>Looking forward to creating something beautiful :)</p>
+          <p>
+            Whether it's photography, video, film, or design, I guarantee professional results,
+            class, and top-notch aesthetics. Feel free to reach out and I'll send you a quote.
+          </p>
+          <p>
+            Looking forward to creating something beautiful :)
+          </p>
         </div>
 
         <div

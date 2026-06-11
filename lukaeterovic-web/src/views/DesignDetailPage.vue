@@ -182,7 +182,7 @@ const loadingClass = computed(() =>
 )
 
 const project = computed(() =>
-  designProjects.value.find(p => p.slug === route.params.slug)
+  designProjects.value.find(p => (p.publicSlug || p.slug) === route.params.slug)
 )
 
 const heroSrc = computed(() => project.value?.heroImage || project.value?.thumbnail || '')

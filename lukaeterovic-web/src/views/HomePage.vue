@@ -29,6 +29,11 @@
             image-base="/assets/images/Design"
             route="/design"
           />
+          <CategoryCard
+            title="COMMERCIAL & PROMO"
+            image-base="/assets/images/CommercialPromo"
+            route="/commercial-promo"
+          />
         </div>
       </div>
     </section>

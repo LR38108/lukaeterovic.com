@@ -1,33 +1,32 @@
-// src/composables/useDesignProjects.js
 import { ref, computed, onMounted } from 'vue'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://lukaeterovic-api.radan-luka.workers.dev'
 const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN
 
-const designProjectsRef = ref([])
+const commercialProjectsRef = ref([])
 const loading = ref(false)
 const error = ref(null)
 
 let initialized = false
 
-export function useDesignProjects() {
+export function useCommercialProjects() {
   async function init() {
     if (initialized) return
     initialized = true
-    await fetchDesignProjects()
+    await fetchCommercialProjects()
   }
 
-  async function fetchDesignProjects() {
+  async function fetchCommercialProjects() {
     loading.value = true
     error.value = null
 
     try {
-      const res = await fetch(`${API_BASE}/design-projects`)
-      if (!res.ok) throw new Error('Failed to fetch design projects')
+      const res = await fetch(`${API_BASE}/commercial-projects`)
+      if (!res.ok) throw new Error('Failed to fetch commercial projects')
 
       const raw = await res.json()
 
-      designProjectsRef.value = raw.map(p => {
+      commercialProjectsRef.value = raw.map(p => {
         const title = p.title ?? ''
         const slug = p.slug ?? ''
 
@@ -35,13 +34,11 @@ export function useDesignProjects() {
           slug,
           publicSlug: slug || slugify(title),
           title,
-          client: p.client,
-          year: p.year,
-          thumbnail: p.thumbnail,
-          heroImage: p.hero_image,
-          description: p.description,
-          textMiddle: p.text_middle ?? '',
-          textFooter: p.text_footer ?? '',
+          client: p.client ?? '',
+          subtitle: p.subtitle ?? '',
+          about: p.about ?? p.description ?? '',
+          thumbnail: p.thumbnail || p.hero_image,
+          heroImage: p.hero_image || p.thumbnail,
           credits: safeJSON(p.credits, []),
           gallery: normalizeImages(safeJSON(p.gallery, [])),
           createdAt: p.created_at,
@@ -56,8 +53,8 @@ export function useDesignProjects() {
     }
   }
 
-  async function addDesignProject(payload) {
-    const res = await fetch(`${API_BASE}/design-projects`, {
+  async function addCommercialProject(payload) {
+    const res = await fetch(`${API_BASE}/commercial-projects`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,11 +64,12 @@ export function useDesignProjects() {
     })
 
     if (!res.ok) throw new Error(await res.text())
-    await fetchDesignProjects()
+    initialized = false
+    await init()
   }
 
-  async function updateDesignProject(slug, payload) {
-    const res = await fetch(`${API_BASE}/design-projects/${slug}`, {
+  async function updateCommercialProject(slug, payload) {
+    const res = await fetch(`${API_BASE}/commercial-projects/${slug}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -81,21 +79,22 @@ export function useDesignProjects() {
     })
 
     if (!res.ok) throw new Error(await res.text())
-    await fetchDesignProjects()
+    initialized = false
+    await init()
   }
 
-  async function removeDesignProject(slug) {
-    const res = await fetch(`${API_BASE}/design-projects/${slug}`, {
+  async function removeCommercialProject(slug) {
+    const res = await fetch(`${API_BASE}/commercial-projects/${slug}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${ADMIN_TOKEN}` }
     })
 
     if (!res.ok) throw new Error(await res.text())
-    designProjectsRef.value = designProjectsRef.value.filter(p => p.slug !== slug)
+    commercialProjectsRef.value = commercialProjectsRef.value.filter(p => p.slug !== slug)
   }
 
   onMounted(() => {
-    if (!designProjectsRef.value.length) init()
+    if (!commercialProjectsRef.value.length) init()
   })
 
   function normalizeImages(images) {
@@ -123,14 +122,14 @@ export function useDesignProjects() {
   }
 
   return {
-    designProjects: computed(() => designProjectsRef.value),
+    commercialProjects: computed(() => commercialProjectsRef.value),
     loading,
     error,
 
     init,
-    fetchDesignProjects,
-    addDesignProject,
-    updateDesignProject,
-    removeDesignProject
+    fetchCommercialProjects,
+    addCommercialProject,
+    updateCommercialProject,
+    removeCommercialProject
   }
 }

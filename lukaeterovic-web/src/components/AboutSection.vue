@@ -9,7 +9,7 @@
       class="w-32 h-32 md:w-48 md:h-48 mx-auto rounded-full mb-6"
     />
     <h3 class="text-3xl md:text-5xl font-semibold mb-5">
-      Hello World I am Luka Eterović…
+      Hello World! I am Luka Eterović…
     </h3>
     <p class="max-w-3xl mx-auto text-base md:text-xl leading-relaxed">
       A Filmmaker, photographer, videographer, designer, writer and creative freelancer

@@ -8,16 +8,11 @@
         <h1 class="galleries-page-title text-[2.25rem] md:text-[2.7rem] font-bold uppercase mb-4">
           PHOTOGRAPHY
         </h1>
-        <p class="galleries-page-intro text-base md:text-lg opacity-70 max-w-2xl leading-relaxed">
-          Curated photographic works of places, people, moments and emotions.
-          <br>
-          <br>
-          “I shoot people not to kill them - but make them feel alive”.
-          <br>
-          <br>
-          - Luka Eterović
-
-        </p>
+        <div class="galleries-page-intro text-base md:text-lg opacity-70 max-w-2xl leading-snug space-y-2">
+          <p>Curated photographic works of places, people, moments and emotions.</p>
+          <p>“I shoot people not to kill them - but make them feel alive”.</p>
+          <p>- Luka Eterović</p>
+        </div>
       </header>
 
       <!-- LOADING -->

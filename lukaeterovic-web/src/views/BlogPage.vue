@@ -13,33 +13,35 @@
       </header>
 
       <!-- POSTS -->
-      <article v-for="post in publishedPosts" :key="post.slug" class="mb-20">
+      <article v-for="post in publishedPosts" :key="post.slug" class="mb-20 text-left">
         <RouterLink
           :to="`/blog/${post.slug}`"
           class="block group no-underline hover:no-underline"
         >
-
-          <!-- COVER -->
           <div v-if="post.cover_image" class="mb-6 aspect-[16/9] overflow-hidden rounded bg-black/5">
-            <img :src="post.cover_image" class="w-full h-full object-cover
-                     transition-transform duration-500
-                     group-hover:scale-105" />
+            <img
+              :src="post.cover_image"
+              :alt="post.title"
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
           </div>
 
-          <!-- TITLE -->
-          <h2 class="blog-post-title text-2xl font-semibold mb-2">
+          <div class="blog-post-date text-sm md:text-base opacity-50 mb-2">
+            {{ formatDate(post.created_at) }}
+          </div>
+
+          <h2 class="blog-post-title text-3xl md:text-5xl font-bold mb-3 leading-none">
             {{ post.title }}
           </h2>
 
-          <!-- EXCERPT -->
-          <p v-if="post.excerpt" class="opacity-70 mb-3">
+          <p v-if="post.excerpt" class="blog-post-subtitle text-xl md:text-2xl opacity-75 mb-7 leading-snug">
             {{ post.excerpt }}
           </p>
 
-          <!-- DATE -->
-          <div class="text-sm opacity-40">
-            {{ new Date(post.created_at).toDateString() }}
-          </div>
+          <span class="blog-read-button inline-flex items-center justify-center px-6 py-3 border text-sm uppercase tracking-[0.14em] transition-colors duration-300">
+            <span>Read now</span>
+          </span>
 
         </RouterLink>
       </article>
@@ -49,15 +51,24 @@
 </template>
 
 <script setup>
-  import {computed, onMounted } from 'vue'
-  import { useBlog } from '@/composables/useBlog'
+import { computed, onMounted } from 'vue'
+import { useBlog } from '@/composables/useBlog'
 
-  const { posts, init } = useBlog()
-  onMounted(init)
+const { posts, init } = useBlog()
+onMounted(init)
 
-  const publishedPosts = computed(() =>
+const publishedPosts = computed(() =>
   posts.value.filter(p => p?.published == 1)
 )
+
+function formatDate(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = String(date.getFullYear()).slice(-2)
+  return `${day}.${month}.${year}`
+}
 </script>
 
 <style scoped>
@@ -71,5 +82,29 @@
   font-family: 'U001 Condensed', sans-serif;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.blog-post-date {
+  font-family: 'U001', sans-serif;
+  font-weight: 400;
+}
+
+.blog-post-subtitle {
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.blog-read-button {
+  font-family: 'U001', sans-serif;
+  font-weight: 700;
+}
+
+.group:hover .blog-read-button {
+  background: currentColor;
+}
+
+.group:hover .blog-read-button span {
+  filter: invert(1);
 }
 </style>

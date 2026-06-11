@@ -1,0 +1,33 @@
+INSERT OR IGNORE INTO commercial_projects (
+  slug,
+  title,
+  client,
+  year,
+  thumbnail,
+  hero_image,
+  description,
+  credits,
+  gallery
+) VALUES
+(
+  'hvar',
+  'HVAR',
+  '',
+  '',
+  '/assets/images/CommercialPromo.jpg',
+  '/assets/images/CommercialPromo.jpg',
+  '',
+  '[]',
+  '[]'
+),
+(
+  'tap-b',
+  'TAP-B',
+  '',
+  '',
+  '/assets/images/CommercialPromo.jpg',
+  '/assets/images/CommercialPromo.jpg',
+  '',
+  '[]',
+  '[]'
+);

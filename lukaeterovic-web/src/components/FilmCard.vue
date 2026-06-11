@@ -19,7 +19,8 @@
 
       <!-- Metadata Row -->
       <div
-        class="flex text-center text-sm font-semibold border border-black divide-x divide-black bg-white text-black overflow-hidden"
+        class="flex text-center text-sm font-semibold border divide-x overflow-hidden"
+        :class="metaClass"
       >
         <div class="flex-1 py-2">{{ year }}</div>
         <div class="flex-1 py-2">{{ duration }}</div>
@@ -33,14 +34,14 @@
       <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mt-7 px-4">
         <span
           class="px-6 py-3 rounded-none border transition-colors duration-300"
-          :class="isLight ? 'border-black text-black bg-white' : 'border-white text-white bg-black'"
+          :class="buttonClass"
         >
           Read more
         </span>
 
         <span
           class="px-6 py-3 rounded-none border transition-colors duration-300"
-          :class="isLight ? 'border-black text-black bg-white' : 'border-white text-white bg-black'"
+          :class="buttonClass"
         >
           ▶ Watch Film
         </span>
@@ -50,8 +51,21 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useTheme } from '@/composables/useTheme.js'
 const { isLight } = useTheme()
+
+const metaClass = computed(() =>
+  isLight.value
+    ? 'border-black divide-black bg-white text-black'
+    : 'border-white divide-white bg-black text-white'
+)
+
+const buttonClass = computed(() =>
+  isLight.value
+    ? 'border-black text-black bg-white hover:bg-black hover:text-white'
+    : 'border-white text-white bg-black hover:bg-white hover:text-black'
+)
 
 defineProps({
   slug: String,

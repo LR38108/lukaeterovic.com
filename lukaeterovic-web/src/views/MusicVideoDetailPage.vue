@@ -1,12 +1,14 @@
 <template>
   <section v-if="video" class="min-h-screen pt-24 pb-32">
 
-    <!-- VIDEO -->
-    <div class="max-w-6xl mx-auto px-4 mb-16">
-      <div class="relative aspect-video bg-black rounded overflow-hidden">
-        <iframe :src="embedUrl" class="absolute inset-0 w-full h-full" frameborder="0"
-          allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-      </div>
+    <!-- HERO IMAGE -->
+    <div v-if="video.thumbnail" class="max-w-6xl mx-auto px-4 mb-16">
+      <img
+        :src="video.thumbnail"
+        :alt="video.title"
+        class="w-full max-h-[72vh] object-cover"
+        loading="lazy"
+      />
     </div>
 
     <!-- INFO -->
@@ -15,7 +17,7 @@
         {{ video.artist }} <span v-if="video.year">· {{ video.year }}</span>
       </div>
 
-      <h1 class="text-3xl md:text-4xl font-bold mb-6">
+      <h1 class="music-video-detail-title text-3xl md:text-4xl font-bold mb-6">
         {{ video.title }}
       </h1>
 
@@ -25,7 +27,7 @@
 
       <!-- CREDITS -->
       <div v-if="creditsList.length" class="mt-12 text-left">
-        <h2 class="text-sm uppercase tracking-wide opacity-50 mb-4">Credits</h2>
+        <h2 class="music-video-section-title text-sm uppercase tracking-wide opacity-50 mb-4">Credits</h2>
         <div class="space-y-2">
           <div
             v-for="(c, i) in creditsList"
@@ -40,8 +42,27 @@
       </div>
     </div>
 
+    <!-- VIDEO -->
+    <div v-if="embedUrl" class="max-w-6xl mx-auto px-4 mt-24">
+      <h2 class="music-video-section-title text-sm uppercase tracking-wide opacity-50 mb-4">
+        Video
+      </h2>
+      <div class="relative aspect-video bg-black overflow-hidden">
+        <iframe
+          :src="embedUrl"
+          class="absolute inset-0 w-full h-full"
+          frameborder="0"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+
     <!-- OPTIONAL STILLS -->
     <div v-if="normalizedGallery.length" class="max-w-6xl mx-auto px-4 mt-24">
+      <h2 class="music-video-section-title text-sm uppercase tracking-wide opacity-50 mb-4">
+        Gallery
+      </h2>
       <div class="columns-1 sm:columns-2 lg:columns-3 gap-6">
         <img v-for="(img, i) in normalizedGallery" :key="img.url" :src="img.url" class="mb-6 rounded cursor-zoom-in"
           @click="openLightbox(i)" />
@@ -63,71 +84,77 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, ref } from 'vue'
-  import { useRoute } from 'vue-router'
-  import { useMusicVideos } from '@/composables/useMusicVideos'
-  import CustomLightbox from '@/components/CustomLightbox.vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { useMusicVideos } from '@/composables/useMusicVideos'
+import CustomLightbox from '@/components/CustomLightbox.vue'
 
-  const route = useRoute()
-  const { musicVideos, init } = useMusicVideos()
+const route = useRoute()
+const { musicVideos, init } = useMusicVideos()
 
-  const lightboxOpen = ref(false)
-  const lightboxIndex = ref(0)
+const lightboxOpen = ref(false)
+const lightboxIndex = ref(0)
 
-  function openLightbox(index) {
-    lightboxIndex.value = index
-    lightboxOpen.value = true
-  }
+function openLightbox(index) {
+  lightboxIndex.value = index
+  lightboxOpen.value = true
+}
 
-  const video = computed(() =>
-    musicVideos.value.find(v => v.slug === route.params.slug)
+const video = computed(() =>
+  musicVideos.value.find(v => v.slug === route.params.slug)
+)
+
+const creditsList = computed(() => {
+  const list = video.value?.credits
+  if (!Array.isArray(list)) return []
+  return list.filter(c => c && (c.role || c.name)).map(c => ({
+    role: c.role || '',
+    name: c.name || ''
+  }))
+})
+
+const normalizedGallery = computed(() => {
+  if (!video.value?.gallery) return []
+
+  return video.value.gallery.map(img =>
+    typeof img === 'string'
+      ? { url: img }
+      : img
   )
+})
 
-  const creditsList = computed(() => {
-    const list = video.value?.credits
-    if (!Array.isArray(list)) return []
-    return list.filter(c => c && (c.role || c.name)).map(c => ({
-      role: c.role || '',
-      name: c.name || ''
-    }))
-  })
+const embedUrl = computed(() => {
+  const url = video.value?.videoUrl || video.value?.video_url
+  if (!url) return ''
 
-  const normalizedGallery = computed(() => {
-    if (!video.value?.gallery) return []
-
-    return video.value.gallery.map(img =>
-      typeof img === 'string'
-        ? { url: img }
-        : img
-    )
-  })
-
-  const embedUrl = computed(() => {
-    const url = video.value?.videoUrl || video.value?.video_url
-    if (!url) return ''
-
-    try {
-      // youtu.be/VIDEO_ID
-      if (url.includes('youtu.be/')) {
-        const id = url.split('youtu.be/')[1].split(/[?&]/)[0]
-        return `https://www.youtube.com/embed/${id}`
-      }
-
-      // youtube.com/watch?v=VIDEO_ID
-      const u = new URL(url)
-      const id = u.searchParams.get('v')
-      if (!id) return ''
-
+  try {
+    // youtu.be/VIDEO_ID
+    if (url.includes('youtu.be/')) {
+      const id = url.split('youtu.be/')[1].split(/[?&]/)[0]
       return `https://www.youtube.com/embed/${id}`
-    } catch {
-      return ''
     }
-  })
 
-  onMounted(init)
+    // youtube.com/watch?v=VIDEO_ID
+    const u = new URL(url)
+    const id = u.searchParams.get('v')
+    if (!id) return ''
+
+    return `https://www.youtube.com/embed/${id}`
+  } catch {
+    return ''
+  }
+})
+
+onMounted(init)
 </script>
 
 <style scoped>
+.music-video-detail-title,
+.music-video-section-title {
+  font-family: 'U001 Condensed', sans-serif;
+  font-weight: 700;
+}
+
 .credit-row .credit-dots {
   border-bottom: 1px dotted currentColor;
   opacity: 0.5;
