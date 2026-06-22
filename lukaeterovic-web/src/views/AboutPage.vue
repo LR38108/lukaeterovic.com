@@ -76,7 +76,7 @@ Thanks for stopping by—and enjoy my work :)
           </h3>
           <div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-6">
             <a
-              href="https://www.instagram.com/"
+              href="https://www.instagram.com/lux_eter/"
               target="_blank"
               rel="noopener noreferrer"
               class="about-social-link inline-flex items-center gap-3 text-base font-medium hover:opacity-80 transition-opacity"
@@ -85,7 +85,7 @@ Thanks for stopping by—and enjoy my work :)
               <img src="/assets/icons/IG.svg" alt="" class="h-6 w-6" />
             </a>
             <a
-              href="https://www.threads.net/"
+              href="https://www.threads.com/@lux_eter?igshid=NTc4MTIwNjQ2YQ=="
               target="_blank"
               rel="noopener noreferrer"
               class="about-social-link inline-flex items-center gap-3 text-base font-medium hover:opacity-80 transition-opacity"
@@ -94,7 +94,7 @@ Thanks for stopping by—and enjoy my work :)
               <img src="/assets/icons/Threads.svg" alt="" class="h-6 w-6" />
             </a>
             <a
-              href="https://vimeo.com/"
+              href="https://vimeo.com/eterlux?fl=pp&fe=sh"
               target="_blank"
               rel="noopener noreferrer"
               class="about-social-link inline-flex items-center gap-3 text-base font-medium hover:opacity-80 transition-opacity"

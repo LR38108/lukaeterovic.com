@@ -41,7 +41,6 @@
 
           <div v-if="film.plotSummary" class="mt-10 mb-8 border-b pb-6" :class="sectionDividerClass">
             <h3 class="film-detail-section-title font-bold mb-2 tracking-widest">PLOT SUMMARY</h3>
-            <p class="italic mb-3">"{{ cleanText(film.plotSummary) }}"</p>
             <p class="leading-relaxed">{{ cleanText(film.plotSummary) }}</p>
           </div>
 
@@ -75,13 +74,15 @@
 
           <!-- WATCH BUTTON -->
           <div class="mt-10 text-center lg:text-left" v-if="film.watchUrl">
-            <button
-              @click="openPlayer"
+            <a
+              :href="film.watchUrl"
+              target="_blank"
+              rel="noopener noreferrer"
               class="film-detail-button inline-block px-6 py-3 border uppercase tracking-wider transition rounded-none"
               :class="buttonClass"
             >
               ▶ Watch Film
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -105,32 +106,11 @@
         :initial-index="activeIndex"
       />
     </div>
-
-    <!-- DESKTOP MODAL -->
-    <transition name="fade">
-      <div
-        v-if="playerOpen && !isMobile"
-        class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
-        @click.self="closePlayer"
-      >
-        <div ref="playerShell" class="relative w-screen h-screen">
-          <button
-            @click="closePlayer"
-            class="film-detail-button absolute top-6 right-6 z-10 text-white tracking-widest"
-          >
-            ✕ CLOSE
-          </button>
-
-          <div ref="vimeoContainer" class="film-player-frame absolute inset-0 w-full h-full"></div>
-        </div>
-      </div>
-    </transition>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, nextTick, onUnmounted } from 'vue'
-import Player from '@vimeo/player'
+import { computed, ref } from 'vue'
 import { useTheme } from '@/composables/useTheme'
 import CustomLightbox from '@/components/CustomLightbox.vue'
 import { useFilms } from '@/composables/useFilms.js'
@@ -171,95 +151,6 @@ function openLightbox(i) {
   activeIndex.value = i
   lightboxOpen.value = true
 }
-
-/* PLAYER */
-
-const playerOpen = ref(false)
-const vimeoContainer = ref(null)
-const playerShell = ref(null)
-let vimeoPlayer = null
-
-const isMobile = window.matchMedia('(max-width: 768px)').matches
-
-function extractVimeoId(url) {
-  const match = url.match(/vimeo\.com\/(\d+)/)
-  return match ? match[1] : null
-}
-
-async function openPlayer() {
-  const videoId = extractVimeoId(film.value.watchUrl)
-  if (!videoId) return
-
-  if (isMobile) {
-    const temp = document.createElement('div')
-    document.body.appendChild(temp)
-
-    vimeoPlayer = new Player(temp, {
-      id: videoId,
-      autoplay: true
-    })
-
-    await nextTick()
-
-    try {
-      await vimeoPlayer.requestFullscreen()
-    } catch {}
-
-    vimeoPlayer.on('fullscreenchange', (data) => {
-      if (!data.fullscreen) {
-        vimeoPlayer.destroy()
-        document.body.removeChild(temp)
-        vimeoPlayer = null
-      }
-    })
-
-    return
-  }
-
-  playerOpen.value = true
-  history.pushState({ modal: true }, '')
-  document.body.style.overflow = 'hidden'
-
-  await nextTick()
-
-  vimeoPlayer = new Player(vimeoContainer.value, {
-    id: videoId,
-    autoplay: true,
-    title: false,
-    byline: false,
-    portrait: false
-  })
-
-  try {
-    await playerShell.value?.requestFullscreen?.()
-  } catch {
-    /* Browser may block fullscreen; the overlay still fills the viewport. */
-  }
-}
-
-function closePlayer() {
-  if (vimeoPlayer) {
-    vimeoPlayer.destroy()
-    vimeoPlayer = null
-  }
-
-  playerOpen.value = false
-  document.body.style.overflow = ''
-
-  if (document.fullscreenElement === playerShell.value) {
-    document.exitFullscreen().catch(() => {})
-  }
-
-  if (history.state?.modal) history.back()
-}
-
-window.addEventListener('popstate', () => {
-  if (playerOpen.value) closePlayer()
-})
-
-onUnmounted(() => {
-  if (vimeoPlayer) vimeoPlayer.destroy()
-})
 
 /* HELPERS */
 
@@ -321,19 +212,5 @@ const hasTech = computed(() => {
 .film-detail-page strong {
   font-family: 'U001 Condensed', sans-serif;
   font-weight: 700;
-}
-
-.film-player-frame iframe {
-  width: 100%;
-  height: 100%;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
 }
 </style>

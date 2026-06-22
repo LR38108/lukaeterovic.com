@@ -4,9 +4,30 @@
     :class="footerClasses"
   >
     <div class="flex justify-center gap-6">
-      <img src="/assets/icons/IG.svg" class="h-6" alt="Instagram" />
-      <img src="/assets/icons/Threads.svg" class="h-6" alt="Threads" />
-      <img src="/assets/icons/vimeo.svg" class="h-6" alt="Vimeo" />
+      <a
+        href="https://www.instagram.com/lux_eter/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Instagram"
+      >
+        <img src="/assets/icons/IG.svg" class="h-6" alt="" />
+      </a>
+      <a
+        href="https://www.threads.com/@lux_eter?igshid=NTc4MTIwNjQ2YQ=="
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Threads"
+      >
+        <img src="/assets/icons/Threads.svg" class="h-6" alt="" />
+      </a>
+      <a
+        href="https://vimeo.com/eterlux?fl=pp&fe=sh"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Vimeo"
+      >
+        <img src="/assets/icons/vimeo.svg" class="h-6" alt="" />
+      </a>
     </div>
 
     <p class="leading-snug">
