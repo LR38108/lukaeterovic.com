@@ -35,6 +35,23 @@
       WEBSITE IS 100% AI FREE.<br />
       ALL RIGHTS RESERVED.
     </p>
+
+    <div class="inline-flex items-center justify-center gap-0.5 text-xs uppercase tracking-widest opacity-70">
+      <span>Powered by CodeCat</span>
+      <a
+        href="https://codecat.hr"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="CodeCat"
+      >
+        <img
+          src="/assets/icons/cat-curled-svgrepo-com%20(3).svg"
+          alt=""
+          class="h-[1.95rem] w-[1.95rem]"
+          :class="isLight ? 'invert' : ''"
+        />
+      </a>
+    </div>
   </footer>
 </template>
 

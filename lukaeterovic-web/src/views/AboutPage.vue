@@ -30,7 +30,7 @@
             My name is Luka Eterović, and I’m an award-winning filmmaker, photographer, videographer, designer, and writer—a creative freelancer currently based in the sunny city of Split, Croatia.
           </p>
           <p>
-            Born on Brač and made in Split, I’ve been pursuing my creative vision since I was a kid my old Nokia cameras in my backyard.
+            Born on Brač and made in Split, I’ve been pursuing my creative vision since I was a kid with my old Nokia cameras in my backyard.
 
 After earning my MA in Film, Animation, and New Media from the Arts Academy in Split in 2023, I’ve been working across creative disciplines, delivering high-end, professional work for artists and clients.
 

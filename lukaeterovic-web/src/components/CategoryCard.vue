@@ -29,8 +29,9 @@
     <!-- Title (slow fade in) -->
     <div class="relative z-10 h-full flex items-center justify-center">
       <h2
-        class="text-white text-3xl sm:text-4xl md:text-5xl
+        class="px-6 text-center text-white text-3xl sm:text-4xl md:text-5xl
                font-semibold tracking-widest uppercase
+               leading-tight
                transition-all duration-1000 ease-out
                group-hover:scale-[1.02]"
         :class="titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'"
